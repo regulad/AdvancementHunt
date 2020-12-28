@@ -1,9 +1,11 @@
 name: Advancementhunt
-version: ${project.version}
+version: 1.0-SNAPSHOT
+description: AdvancementHunt/Manhunt plugin for SquirrelNet
+authors: [regulad, abhiram]
+
 main: de.teddy.advancementhunt.AdvancementHunt
-api-version: 1.13
-author: regulad
 depend: [PlaceholderAPI, Multiverse-Core, Multiverse-NetherPortals]
+api-version: 1.16
 
 commands:
   set:
