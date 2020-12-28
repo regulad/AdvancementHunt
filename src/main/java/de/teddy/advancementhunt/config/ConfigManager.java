@@ -15,6 +15,13 @@ public class ConfigManager {
 
     public ConfigManager() {
         if(file.exists()) { return; }
+        try
+        {
+            file.createNewFile();
+        }catch (Exception ez)
+        {
+            AdvancementHunt.getInstance().getLogger().info("Unable to create Config");
+        }
         //getConfig().set("Game.Messages.StartGame", "&cThe game starts in %seconds% seconds");
         //getConfig().set("Game.Messages.StopGame", "&cThe game stops in %seconds% seconds");
         // getConfig().set("Game.Messages.IsFleeingPlayer", "&cThe hunters are nearly behind you...! Make advancement: %id%");
