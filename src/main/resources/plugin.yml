@@ -4,7 +4,7 @@ description: AdvancementHunt/Manhunt plugin for SquirrelNet
 authors: [regulad, abhiram]
 
 main: de.teddy.advancementhunt.AdvancementHunt
-depend: [PlaceholderAPI, Multiverse-Core, Multiverse-NetherPortals]
+depend: [PlaceholderAPI, Multiverse-Core]
 api-version: 1.16
 
 commands:

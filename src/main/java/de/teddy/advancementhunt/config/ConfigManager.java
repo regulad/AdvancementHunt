@@ -11,17 +11,16 @@ public class ConfigManager {
 
     private File data_folder = new File(AdvancementHunt.getInstance().getDataFolder() + "");
     private File file = new File(data_folder,"config.yml");
-    private YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+    private YamlConfiguration config;
 
     public ConfigManager() {
-        if(file.exists()) { return; }
-        try
-        {
-            file.createNewFile();
-        }catch (Exception ez)
-        {
-            AdvancementHunt.getInstance().getLogger().info("Unable to create Config");
+        if(file.exists()) {
+            config = YamlConfiguration.loadConfiguration(file);
+            return;
         }
+
+        config = YamlConfiguration.loadConfiguration(file);
+
         //getConfig().set("Game.Messages.StartGame", "&cThe game starts in %seconds% seconds");
         //getConfig().set("Game.Messages.StopGame", "&cThe game stops in %seconds% seconds");
         // getConfig().set("Game.Messages.IsFleeingPlayer", "&cThe hunters are nearly behind you...! Make advancement: %id%");

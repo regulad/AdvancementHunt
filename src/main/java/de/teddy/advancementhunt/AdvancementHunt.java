@@ -20,6 +20,7 @@ import de.teddy.advancementhunt.teams.TeamManager;
 import de.teddy.advancementhunt.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -45,17 +46,18 @@ public final class AdvancementHunt extends JavaPlugin {
     private Utils utils = new Utils();
     private GameStateManager gameStateManager = new GameStateManager();
     private PermissionManager permissionManager = new PermissionManager();
-    private ConfigManager configManager = new ConfigManager();
-    private MySQLManager mySQLManager = new MySQLManager(configManager);
+    private ConfigManager configManager;
+    private MySQLManager mySQLManager;
     private TeamManager teamManager = new TeamManager();
     private ActionbarManager actionbarManager = new ActionbarManager();
     private MessageManager messageManager;
     private AdvancementSeed advancementSeed;
 
-
     @Override
     public void onEnable() {
         instance = this;
+        configManager = new ConfigManager();
+        mySQLManager = new MySQLManager(configManager);
         messages = new Messages();
 
         worldName = getConfigManager().getMessage("Game.Extra.WorldName");
