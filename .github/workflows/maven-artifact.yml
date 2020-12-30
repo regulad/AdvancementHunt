@@ -25,5 +25,5 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
-        name: AdvancementHunt
-        path: target/*.jar 
+        name: AdvancementHunt.jar
+        path: target/AdvancementHunt-*.jar 
