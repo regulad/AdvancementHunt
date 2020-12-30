@@ -34,9 +34,9 @@ public class ActionbarManager {
 
 
                 for(Player player : Bukkit.getOnlinePlayers()) {
-                    AdvancementHunt.getInstance().getMessageManager().sendMessageReplace(player, MessageType.TIME_LEFT,"%minutes%",PlaceholderAPI.setPlaceholders(player, "%advancement_time_remaining%"));
-                    //player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(AdvancementHunt.getInstance().getConfigManager().getMessageWithReplace(
-                          //  "Game.Messages.TimeLeft", "%minutes%", PlaceholderAPI.setPlaceholders(player, "%advancement_time_remaining%"))));
+                    AdvancementHunt.getInstance().getMessageManager().sendMessageReplace(player, MessageType.TIME_LEFT,"%minutes%",PlaceholderAPI.setPlaceholders(player, "%ah_time_remaining%"));
+                    // player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(AdvancementHunt.getInstance().getConfigManager().getMessageWithReplace(
+                    // "Game.Messages.TimeLeft", "%minutes%", PlaceholderAPI.setPlaceholders(player, "%advancement_time_remaining%"))));
                 }
 
                 if(AdvancementHunt.getInstance().isCompass()) {

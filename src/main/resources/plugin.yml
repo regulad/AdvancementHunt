@@ -1,5 +1,5 @@
-name: Advancementhunt
-version: 1.1-SNAPSHOT
+name: AdvancementHunt
+version: ${project.version}
 description: AdvancementHunt/Manhunt plugin for SquirrelNet
 authors: [regulad, abhiram]
 
