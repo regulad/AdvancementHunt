@@ -1,6 +1,6 @@
 # // TODO Mk II
 
-## Features
+## To be fixed now
 
 1. BungeeCord stuff
     * Add a "Queue" system.
@@ -10,22 +10,17 @@
 	* Both tables must share the same prefix
 1. Add table prefix
 	* Both the playerdata table and the game storage table must share the same configurable prefix
-
-## Bugs
-
-1. Game generates multiple folders for configuration, multiple configmanagers?
 1. After a game is over, the server still blocks players from joining with the message "game already started"
-1. Game does not kick players back to lobby when they disconnect
-1. when the game is generating a world, it generates all of them at once and this causes the server to lag hard. while this doesnt crash the server, it causes players to miss packets and causes them to be kicked or to trigger the anticheat im using. if possible, create these worlds asyncronysly.
 1. Plugin uses the PlayerJoinEvent instead of the superior AsyncPlayerPreLoginEvent, this is an issue on the BungeeCord network because it results in players being kicked from the network, not being unable to connect to the server
     * I think this causes crashes since I get errors like `ERROR Could not pass event PlayerJoinEvent to Advancementhunt v1.0-SNAPSHOT`, which lead to a crash
     * This happens with other events too.
 
-## Polish
+## To be fixed later
 
-1. when a game is over, the timer continues to tick down even when the "Game ends in x seconds"
-1. game does not automatically start when 3 players are sent into the server
+1. When a game is over, the timer continues to tick down even when the "Game ends in x seconds"
+1. Game does not automatically start when 3 players are sent into the server
 1. "Creating World..." is hardcoded and cannot be changed with `messages.yml`
+1. Add "queue" system for the messages so when 2 messages are dispatched to the same place nothing breaks
 
 # I have also provided the original pitch. Please read over it if there is any confusion.
 

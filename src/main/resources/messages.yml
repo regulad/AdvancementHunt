@@ -1,39 +1,42 @@
 # ----------------------------------------------------------------------------
-# messages
-# I made this new messages config because its easy for me to do things
+# Configure the messages the plugin displays
+# - send_type
+#   - TITLE: Title Card
+#   - CHAT: Chat
+#   - ACTION_BAR: Action Bar
 # ----------------------------------------------------------------------------
 
 Messages:
   Hunter_won:
-    send_type: "ACTION_BAR"
+    send_type: "TITLE"
     message: "&cWinner: The Hunters"
   Game_over:
-    send_type: "CHAT"
+    send_type: "ACTION_BAR"
     message: "&cThe game is over!"
   Player_offline:
     send_type: "CHAT"
     message: "&cThis player is not online!"
   Time_left:
-    send_type: "CHAT"
-    message: "&cTime left: %minutes%"
+    send_type: "ACTION_BAR"
+    message: "&cTime remaining: %minutes%"
   THE_FLEEING_PLAYER:
-    send_type: "CHAT"
+    send_type: "TITLE"
     message: "&cThe Fleeing Player: %player%"
   the_hunter:
-    send_type: "CHAT"
+    send_type: "ACTION_BAR"
     message: "&cHunter: %player%"
   won:
-    send_type: "CHAT"
+    send_type: "TITLE"
     message: "&c%player% won!"
   not_enough_players:
-    send_type: "CHAT"
-    message: "&cThere are &a%count% &cplayers missing until the start"
+    send_type: "ACTION_BAR"
+    message: "&cThere are &a%count%&r&c players missing until the start!"
   is_fleeing_player:
-    send_type: "CHAT"
-    message: "&cThe hunters are nearly behind you...! Make advancement: %id%"
+    send_type: "TITLE"
+    message: "&cThe hunters are approaching! Get the Advancement %id%!"
   Stop_Game:
-    send_type: "CHAT"
-    message: "&cThe game stops in %seconds% seconds"
+    send_type: "ACTION_BAR"
+    message: "&cThe game stops in %seconds%..."
   Start_Game:
-    send_type: "CHAT"
-    message: "&cThe game starts in %seconds% seconds"
+    send_type: "ACTION_BAR"
+    message: "&cThe game starts in %seconds%..."
