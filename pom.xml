@@ -9,7 +9,7 @@
     <packaging>jar</packaging>
     <name>AdvancementHunt</name>
     <properties>
-        <java.version>1.11</java.version>
+        <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <build>
