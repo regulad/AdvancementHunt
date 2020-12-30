@@ -65,10 +65,6 @@
             <id>placeholderapi</id>
             <url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
-        <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/squirrelnetmc/AdvancementHunt</url>
-        </repository>
     </repositories>
     <dependencies>
         <dependency>
