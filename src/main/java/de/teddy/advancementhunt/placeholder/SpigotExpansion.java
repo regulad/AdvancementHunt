@@ -20,7 +20,7 @@ public class SpigotExpansion extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getVersion() {
-        return "1.1-SNAPSHOT";
+        return "${project.version}";
     }
 
     @Override
