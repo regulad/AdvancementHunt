@@ -13,7 +13,7 @@
 ## To be fixed in the next commission
 
 1. Ditch maven, move to gradle 
-1. Get rid of hardcoded plugins, move everything into PlaceholderAPI
+1. Get rid of hardcoded placeholders (ie. %minutes%, %id%) (see `messages.yml`), move everything into PlaceholderAPI
 1. Plugin uses the PlayerJoinEvent instead of the superior AsyncPlayerPreLoginEvent, this is an issue on the BungeeCord network because it results in players being kicked from the network, not being unable to connect to the server
     * I think this causes crashes since I get errors like `ERROR Could not pass event PlayerJoinEvent to Advancementhunt v1.0-SNAPSHOT`, which lead to a crash
     * This happens with other events too.
