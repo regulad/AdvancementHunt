@@ -77,6 +77,7 @@ public class PlayerDeathListener implements Listener {
             public void run() {
                 player.spigot().respawn();
                 player.sendTitle(new Title("TEST","",1,1,1));
+                player.teleport(Bukkit.getWorld(AdvancementHunt.getInstance().getWorldName()).getSpawnLocation());
             }
         }).runTaskLater(AdvancementHunt.getInstance(), 3L);
     }

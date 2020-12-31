@@ -34,7 +34,7 @@ public class IngameState extends GameState {
 		}
 		this.advancement_id =  AdvancementHunt.getInstance().getAdvancement_id();
 
-		AdvancementHunt.getInstance().getMessageManager().sendMessageReplace(fleeingPlayer, MessageType.ISFLEEING_PLAYER,"%id%",this.advancement_id);
+		AdvancementHunt.getInstance().getMessageManager().sendMessageReplace(fleeingPlayer, MessageType.ISFLEEING_PLAYER,"%id%",this.advancement_id.split("/")[1]);
 		// fleeingPlayer.sendMessage(AdvancementHunt.getInstance().getConfigManager().getMessageWithReplace("Game.Messages.IsFleeingPlayer", "%id%", this.advancement_id));
 
 		int count = 0;
