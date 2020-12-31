@@ -3,6 +3,7 @@ package de.teddy.advancementhunt.message;
 import com.destroystokyo.paper.Title;
 import de.teddy.advancementhunt.AdvancementHunt;
 import de.teddy.advancementhunt.config.Messages;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -101,13 +102,13 @@ public class MessageManager {
             switch (message.getSendType())
             {
                 case CHAT:
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',message.getMessage()));
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage())));
                     return;
                 case TITLE:
-                    player.sendTitle(new Title(ChatColor.translateAlternateColorCodes('&',message.getMessage()),""));
+                    player.sendTitle(new Title(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage())),""));
                     return;
                 case ACTION_BAR:
-                    player.sendActionBar(ChatColor.translateAlternateColorCodes('&',message.getMessage()));
+                    player.sendActionBar(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage())));
                     return;
             }
         }
@@ -124,13 +125,13 @@ public class MessageManager {
             switch (message.getSendType())
             {
                 case CHAT:
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',message.getMessage().replaceAll(regex,replacements)));
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage().replaceAll(regex,replacements))));
                     return;
                 case TITLE:
-                    player.sendTitle(new Title(ChatColor.translateAlternateColorCodes('&',message.getMessage().replaceAll(regex,replacements)),""));
+                    player.sendTitle(new Title(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage().replaceAll(regex,replacements))),""));
                     return;
                 case ACTION_BAR:
-                    player.sendActionBar(ChatColor.translateAlternateColorCodes('&',message.getMessage().replaceAll(regex,replacements)));
+                    player.sendActionBar(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage().replaceAll(regex,replacements))));
                     return;
             }
         }
@@ -153,13 +154,13 @@ public class MessageManager {
             switch (message.getSendType())
             {
                 case CHAT:
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',text));
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,text)));
                     return;
                 case TITLE:
-                    player.sendTitle(new Title(ChatColor.translateAlternateColorCodes('&',text),""));
+                    player.sendTitle(new Title(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,text)),""));
                     return;
                 case ACTION_BAR:
-                    player.sendActionBar(ChatColor.translateAlternateColorCodes('&',text));
+                    player.sendActionBar(ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player,text)));
                     return;
             }
         }
