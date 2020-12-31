@@ -2,6 +2,7 @@ package de.teddy.advancementhunt.gamestates;
 
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import de.teddy.advancementhunt.AdvancementHunt;
+import de.teddy.advancementhunt.message.MessageFormat;
 import de.teddy.advancementhunt.message.MessageType;
 import de.teddy.advancementhunt.teams.Team;
 import org.apache.commons.lang.reflect.FieldUtils;
@@ -13,6 +14,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import java.util.ArrayList;
 
 public class IngameState extends GameState {
 
@@ -34,8 +37,11 @@ public class IngameState extends GameState {
 		}
 		this.advancement_id =  AdvancementHunt.getInstance().getAdvancement_id();
 
-		// Fixed Advancement using namspaced key ()
-		AdvancementHunt.getInstance().getMessageManager().sendMessageReplace(fleeingPlayer, MessageType.ISFLEEING_PLAYER,"%id%",this.advancement_id.split("/")[1]);
+		// Fixed Advancement using namspaced key () with multiple placeholders
+		ArrayList<MessageFormat> message_formats = new ArrayList<>();
+		message_formats.add(new MessageFormat("%id%",this.advancement_id));
+		message_formats.add(new MessageFormat("%name%",this.advancement_id.split("/")[1]));
+		AdvancementHunt.getInstance().getMessageManager().sendFormatMessage(fleeingPlayer, MessageType.ISFLEEING_PLAYER,message_formats);
 		// fleeingPlayer.sendMessage(AdvancementHunt.getInstance().getConfigManager().getMessageWithReplace("Game.Messages.IsFleeingPlayer", "%id%", this.advancement_id));
 
 		int count = 0;

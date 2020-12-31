@@ -115,7 +115,7 @@ public class MessageManager {
         AdvancementHunt.getInstance().getLogger().info("Agh, seems like abhi has did a ooopse");
     }
 
-    public void sendMessageReplace(Player player,MessageType messageType,String regex,String replacements)
+    public void sendMessageReplace(Player player, MessageType messageType, String regex, String replacements)
     {
         MessageObject message = getMessage(messageType);
 
@@ -131,6 +131,35 @@ public class MessageManager {
                     return;
                 case ACTION_BAR:
                     player.sendActionBar(ChatColor.translateAlternateColorCodes('&',message.getMessage().replaceAll(regex,replacements)));
+                    return;
+            }
+        }
+
+        AdvancementHunt.getInstance().getLogger().info("Agh, seems like abhi has did a ooopse");
+    }
+
+    public void sendFormatMessage(Player player,MessageType messageType,ArrayList<MessageFormat> format)
+    {
+        MessageObject message = getMessage(messageType);
+
+        String text = message.getMessage();
+
+        for(MessageFormat format1 : format)
+        {
+            text.replaceAll(format1.getRegex(),format1.getReplace());
+        }
+        if(message != null)
+        {
+            switch (message.getSendType())
+            {
+                case CHAT:
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',text));
+                    return;
+                case TITLE:
+                    player.sendTitle(new Title(ChatColor.translateAlternateColorCodes('&',text),""));
+                    return;
+                case ACTION_BAR:
+                    player.sendActionBar(ChatColor.translateAlternateColorCodes('&',text));
                     return;
             }
         }
