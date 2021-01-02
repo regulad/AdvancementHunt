@@ -9,7 +9,7 @@ public class FightUtil {
     private HashMap<Player, Integer> kills = new HashMap<Player, Integer>();
     private HashMap<Player, Integer> deaths = new HashMap<Player, Integer>();
     private HashMap<Player, Integer> wins = new HashMap<Player, Integer>();
-    private HashMap<Player, Integer> looses = new HashMap<Player, Integer>();
+    private HashMap<Player, Integer> losses = new HashMap<Player, Integer>();
 
     public void addKill(Player player, int amount) {
         if(!kills.containsKey(player)) {
@@ -36,10 +36,10 @@ public class FightUtil {
     }
 
     public void addLoose(Player player, int amount) {
-        if(!looses.containsKey(player)) {
-            looses.put(player, amount);
+        if(!losses.containsKey(player)) {
+            losses.put(player, amount);
         } else {
-            looses.put(player, looses.get(player) + amount);
+            losses.put(player, losses.get(player) + amount);
         }
     }
 
@@ -47,8 +47,8 @@ public class FightUtil {
         return wins;
     }
 
-    public HashMap<Player, Integer> getLooses() {
-        return looses;
+    public HashMap<Player, Integer> getLosses() {
+        return losses;
     }
 
     public HashMap<Player, Integer> getKills() {
@@ -63,6 +63,6 @@ public class FightUtil {
         this.kills.clear();
         this.deaths.clear();
         this.wins.clear();
-        this.looses.clear();
+        this.losses.clear();
     }
 }

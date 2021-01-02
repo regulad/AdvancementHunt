@@ -45,7 +45,7 @@ public class EndingState extends GameState {
                     preparedStatement.setString(2, player.getName());
                     preparedStatement.setInt(3, AdvancementHunt.getInstance().getUtils().getFightUtil().getKills().get(player));
                     preparedStatement.setInt(4, AdvancementHunt.getInstance().getUtils().getFightUtil().getDeaths().get(player));
-                    preparedStatement.setInt(5, AdvancementHunt.getInstance().getUtils().getFightUtil().getLooses().get(player));
+                    preparedStatement.setInt(5, AdvancementHunt.getInstance().getUtils().getFightUtil().getLosses().get(player));
                     preparedStatement.setInt(6, AdvancementHunt.getInstance().getUtils().getFightUtil().getWins().get(player));
                     preparedStatement.execute();
                 } catch (Exception e) {
