@@ -1,4 +1,4 @@
-name: Advancementhunt
+name: ${project.name}
 version: ${project.version}
 description: AdvancementHunt/Manhunt plugin for SquirrelNet
 author: regulad
