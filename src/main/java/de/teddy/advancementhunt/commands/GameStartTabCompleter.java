@@ -10,16 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class GameStartTabCompleter implements TabCompleter {
-    private ArrayList<String> args1 = new ArrayList<>();
 
-    public GameStartTabCompleter()
-    {
-        args1.add("random");
-        args1.add("true");
-        args1.add("false");
-        args1.add("5");
-        args1.add("10");
-    }
     @Override
     public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) {
         List<String> return_strings = new ArrayList<>();
