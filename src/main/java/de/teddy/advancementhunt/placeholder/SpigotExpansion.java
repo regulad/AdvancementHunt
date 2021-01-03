@@ -49,8 +49,8 @@ public class SpigotExpansion extends PlaceholderExpansion {
             }
         }
         if(params.equals("losses")) {
-            if(AdvancementHunt.getInstance().getUtils().getFightUtil().getLooses().containsKey(player)) {
-                return String.valueOf(AdvancementHunt.getInstance().getUtils().getFightUtil().getLooses().get(player));
+            if(AdvancementHunt.getInstance().getUtils().getFightUtil().getLosses().containsKey(player)) {
+                return String.valueOf(AdvancementHunt.getInstance().getUtils().getFightUtil().getLosses().get(player));
             } else {
                 return "0";
             }

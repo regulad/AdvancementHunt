@@ -45,7 +45,7 @@ public class MySQL {
                 + "   playername       VARCHAR(255) NOT NULL default '',"
                 + "   kills            INT NOT NULL default 0,"
                 + "   deaths           INT NOT NULL default 0,"
-                + "   Looses           INT NOT NULL default 0,"
+                + "   Losses           INT NOT NULL default 0,"
                 + "   Wins             INT NOT NULL default 0,"
                 + "   PRIMARY KEY  (uuid));";
         statement.execute(sql);

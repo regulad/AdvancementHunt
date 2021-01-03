@@ -7,7 +7,7 @@ public final class PlayerStat {
     private int kills;
     private int deaths;
     private int wins;
-    private int looses;
+    private int losses;
 
     public PlayerStat(String uuid,String player_name)
     {
@@ -30,9 +30,9 @@ public final class PlayerStat {
         this.wins = wins;
     }
 
-    public void setLooses(int looses)
+    public void setLosses(int losses)
     {
-        this.looses = looses;
+        this.losses = losses;
     }
 
     public int getKills()
@@ -50,8 +50,8 @@ public final class PlayerStat {
         return wins;
     }
 
-    public int getLooses()
+    public int getLosses()
     {
-        return looses;
+        return losses;
     }
 }
