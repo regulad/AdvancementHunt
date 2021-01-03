@@ -113,7 +113,7 @@ public class MessageManager {
             }
         }
 
-        AdvancementHunt.getInstance().getLogger().info("Agh, seems like abhi has did a ooopse");
+        AdvancementHunt.getInstance().getLogger().info("Unable to send message to player");
     }
 
     public void sendMessageReplace(Player player, MessageType messageType, String regex, String replacements)
@@ -136,7 +136,7 @@ public class MessageManager {
             }
         }
 
-        AdvancementHunt.getInstance().getLogger().info("Agh, seems like abhi has did a ooopse");
+        AdvancementHunt.getInstance().getLogger().info("Unable to send message to player");
     }
 
     public void sendFormatMessage(Player player,MessageType messageType,ArrayList<MessageFormat> format)
@@ -165,7 +165,7 @@ public class MessageManager {
             }
         }
 
-        AdvancementHunt.getInstance().getLogger().info("Agh, seems like abhi has did a ooopse");
+        AdvancementHunt.getInstance().getLogger().info("Unable to send message to player");
     }
     public static Messages getMessageConfig()
     {
