@@ -2,11 +2,11 @@
 # Configure the messages the plugin displays
 # - send_type
 #   - TITLE: Title Card
-#      - SUBTITLE: Subtitle
+#   - SUBTITLE: Subtitle
 #   - CHAT: Chat
 #   - ACTION_BAR: Action Bar
 #   - SUBTITLE: Subtitle
-#   - version: 1.0
+#   version: 1.0
 # ----------------------------------------------------------------------------
 
 Messages:
