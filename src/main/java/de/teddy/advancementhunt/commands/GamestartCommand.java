@@ -75,6 +75,7 @@ public class GamestartCommand implements CommandExecutor {
                 normal_world.seed(Long.parseLong(this.seed));
                 normal_world.environment(World.Environment.NORMAL);
                 normal_world.createWorld();
+                AdvancementHunt.getInstance().getMultiverseCore().getMVWorldManager().getMVWorld(AdvancementHunt.getInstance().getWorldName()).setSpawnLocation(Bukkit.getWorld(AdvancementHunt.getInstance().getWorldName()).getSpawnLocation());
 
                 WorldCreator nether_world = new WorldCreator(AdvancementHunt.getInstance().getWorldName() + "_nether");
                 nether_world.environment(World.Environment.NETHER);
@@ -152,6 +153,7 @@ public class GamestartCommand implements CommandExecutor {
             normal_world.seed(Long.parseLong(this.seed));
             normal_world.environment(World.Environment.NORMAL);
             normal_world.createWorld();
+            AdvancementHunt.getInstance().getMultiverseCore().getMVWorldManager().getMVWorld(AdvancementHunt.getInstance().getWorldName()).setSpawnLocation(Bukkit.getWorld(AdvancementHunt.getInstance().getWorldName()).getSpawnLocation());
 
             WorldCreator nether_world = new WorldCreator(AdvancementHunt.getInstance().getWorldName() + "_nether");
             nether_world.environment(World.Environment.NETHER);
