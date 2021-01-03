@@ -78,6 +78,13 @@ public class SpigotExpansion extends PlaceholderExpansion {
 
         if(params.equals("id")) {
             if(AdvancementHunt.getInstance().getAdvancement_id() != null) {
+                return AdvancementHunt.getInstance().getAdvancement_id();
+            }
+        }
+
+        if(params.equals("name"))
+        {
+            if(AdvancementHunt.getInstance().getAdvancement_id() != null) {
                 String[] advancement_name = AdvancementHunt.getInstance().getAdvancement_id().split("/");
                 return advancement_name[1];
             }
