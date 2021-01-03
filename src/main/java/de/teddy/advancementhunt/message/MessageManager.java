@@ -42,6 +42,8 @@ public class MessageManager {
                 return SendType.ACTION_BAR;
             case "CHAT":
                 return SendType.CHAT;
+            case "SUBTITLE":
+                return SendType.SUBTITLE;
         }
 
         AdvancementHunt.getInstance().getLogger().info("Invalid Message Send type found using default one ('CHAT')");
@@ -110,6 +112,9 @@ public class MessageManager {
                 case ACTION_BAR:
                     player.sendActionBar(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage())));
                     return;
+                case SUBTITLE:
+                    player.sendTitle(new Title("",ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage()))));
+                    return;
             }
         }
 
@@ -132,6 +137,9 @@ public class MessageManager {
                     return;
                 case ACTION_BAR:
                     player.sendActionBar(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage().replaceAll(regex,replacements))));
+                    return;
+                case SUBTITLE:
+                    player.sendTitle(new Title("",ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage()))));
                     return;
             }
         }
