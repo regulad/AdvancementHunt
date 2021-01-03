@@ -37,11 +37,7 @@ public class IngameState extends GameState {
 		}
 		this.advancement_id =  AdvancementHunt.getInstance().getAdvancement_id();
 
-		// Fixed Advancement using namspaced key () with multiple placeholders
-		ArrayList<MessageFormat> message_formats = new ArrayList<>();
-		message_formats.add(new MessageFormat("%id%",this.advancement_id));
-		message_formats.add(new MessageFormat("%name%",this.advancement_id.split("/")[1]));
-		AdvancementHunt.getInstance().getMessageManager().sendFormatMessage(fleeingPlayer, MessageType.ISFLEEING_PLAYER,message_formats);
+		AdvancementHunt.getInstance().getMessageManager().sendMessage(fleeingPlayer, MessageType.ISFLEEING_PLAYER);
 		// fleeingPlayer.sendMessage(AdvancementHunt.getInstance().getConfigManager().getMessageWithReplace("Game.Messages.IsFleeingPlayer", "%id%", this.advancement_id));
 
 		int count = 0;

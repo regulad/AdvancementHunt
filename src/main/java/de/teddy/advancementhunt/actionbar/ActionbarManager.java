@@ -35,7 +35,7 @@ public class ActionbarManager {
 
                 for(Player player : Bukkit.getOnlinePlayers()) {
                     // I think this is what you mean about placeholder....
-                    AdvancementHunt.getInstance().getMessageManager().sendMessageReplace(player, MessageType.TIME_LEFT,"%minutes%",PlaceholderAPI.setPlaceholders(player, "%ah_time_remaining%"));
+                    AdvancementHunt.getInstance().getMessageManager().sendMessage(player, MessageType.TIME_LEFT);
                     //player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(AdvancementHunt.getInstance().getConfigManager().getMessageWithReplace(
                           //  "Game.Messages.TimeLeft", "%minutes%", PlaceholderAPI.setPlaceholders(player, "%advancement_time_remaining%"))));
                 }
