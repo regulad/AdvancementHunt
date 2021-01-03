@@ -33,13 +33,13 @@ Messages:
     message: "%ah_player% won!"
   not_enough_players:
     send_type: "ACTION_BAR"
-    message: "&cThere are &a%count%&r&c players missing until the start!"
+    message: "There are &a%ah_count%&r&c players missing until the start!"
   is_fleeing_player:
     send_type: "TITLE"
     message: "The hunters are approaching! Get the Advancement %ah_name%!"
   Stop_Game:
     send_type: "ACTION_BAR"
-    message: "The game stops in  %seconds%..."
+    message: "The game stops in %ah_countdown%..."
   Start_Game:
     send_type: "ACTION_BAR"
-    message: "The game starts in %seconds%..."
+    message: "The game starts in %ah_countdown%..."
