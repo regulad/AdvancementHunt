@@ -33,7 +33,8 @@ public class PlayerDeathListener implements Listener {
 
         if(AdvancementHunt.getInstance().getTeamManager().getPlayers(Team.PLAYER).contains(player)) {
             World w = Bukkit.getServer().getWorld(AdvancementHunt.getInstance().getWorldName());
-            respawn(player);
+            // Removed imediate respawn
+            // respawn(player);
 
             for(Player all : Bukkit.getOnlinePlayers())
             {
@@ -62,8 +63,9 @@ public class PlayerDeathListener implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                player.spigot().respawn();
-                player.sendTitle(new Title("TEST","",1,1,1));
+                // Removed instant respawn
+                //player.spigot().respawn();
+                //player.sendTitle(new Title("TEST","",1,1,1));
                 player.teleport(location);
                 if (AdvancementHunt.getInstance().isCompass()) {
                     player.getInventory().addItem(new ItemStack(Material.COMPASS));
@@ -75,6 +77,7 @@ public class PlayerDeathListener implements Listener {
     private void respawn(Player player) {
         (new BukkitRunnable() {
             public void run() {
+
                 player.spigot().respawn();
                 player.sendTitle(new Title("TEST","",1,1,1));
 
