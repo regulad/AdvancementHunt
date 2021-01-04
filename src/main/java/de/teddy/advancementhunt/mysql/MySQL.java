@@ -49,6 +49,12 @@ public class MySQL {
                 + "   Wins             INT NOT NULL default 0,"
                 + "   PRIMARY KEY  (uuid));";
         statement.execute(sql);
+
+        String create_storage = "CREATE TABLE IF NOT EXISTS " + AdvancementHunt.getInstance().getConfigManager().getConfig().getString("Game.MySQL.table_prefix") + "storage"
+                           + "  (World_Seeds VARCHAR(255),"
+                           + "   advancement_id LONG);";
+
+        statement.execute(create_storage);
     }
     public void close() {
         if(connection != null) {
