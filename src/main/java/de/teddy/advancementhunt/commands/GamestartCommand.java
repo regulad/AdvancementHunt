@@ -145,6 +145,7 @@ public class GamestartCommand implements CommandExecutor {
         this.distance = Integer.parseInt(args[7]);
 
         if(Bukkit.getOnlinePlayers().size() >= LobbyState.MIN_PLAYERS) {
+            // New message update
             AdvancementHunt.getInstance().getMessageManager().sendMessage(player,MessageType.CREATING_WORLD);
             // player.sendMessage("§cCreating World...");
             AdvancementHunt.getInstance().getUtils().getWorldUtil().worldCreate(AdvancementHunt.getInstance().getWorldName(), World.Environment.NORMAL, this.seed);
