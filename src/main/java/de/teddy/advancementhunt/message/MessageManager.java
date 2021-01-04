@@ -76,6 +76,8 @@ public class MessageManager {
                 return MessageType.STOP_GAME;
             case "Start_Game":
                 return MessageType.START_GAME;
+            case "create_world":
+                return MessageType.CREATING_WORLD;
         }
 
         AdvancementHunt.getInstance().getLogger().info("message type: " + message_type + " Not found returning random type lol");

@@ -6,7 +6,6 @@
 #   - CHAT: Chat
 #   - ACTION_BAR: Action Bar
 #   - SUBTITLE: Subtitle
-#   version: 1.0
 # ----------------------------------------------------------------------------
 
 Messages:
@@ -18,7 +17,7 @@ Messages:
     message: "The game is over!"
   Player_offline:
     send_type: "CHAT"
-    message: "&his player is offline!"
+    message: "This player is offline!"
   Time_left:
     send_type: "ACTION_BAR"
     message: "Time remaining: %ah_time_remaining%"
@@ -33,7 +32,7 @@ Messages:
     message: "%ah_player% won!"
   not_enough_players:
     send_type: "ACTION_BAR"
-    message: "There are &a%ah_count%&r&c players missing until the start!"
+    message: "There are &a%count% players missing until the start!"
   is_fleeing_player:
     send_type: "TITLE"
     message: "The hunters are approaching! Get the Advancement %ah_name%!"
@@ -43,3 +42,6 @@ Messages:
   Start_Game:
     send_type: "ACTION_BAR"
     message: "The game starts in %ah_countdown%..."
+  create_world:
+    send_type: "ACTION_BAR"
+    message: "making world"
