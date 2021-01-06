@@ -37,7 +37,7 @@ public class MySQL {
 
     private void setUpTable() throws Exception
     {
-        AdvancementHunt.getInstance().getLogger().info("Setting up player stat table....");
+        AdvancementHunt.getInstance().getLogger().info("Setting up mysql tables....");
         Statement statement = connection.createStatement();
 
         String sql = "CREATE TABLE IF NOT EXISTS " + AdvancementHunt.getInstance().getConfigManager().getConfig().getString("Game.MySQL.table_prefix") + "player_stat"
@@ -50,11 +50,13 @@ public class MySQL {
                 + "   PRIMARY KEY  (uuid));";
         statement.execute(sql);
 
-        String create_storage = "CREATE TABLE IF NOT EXISTS " + AdvancementHunt.getInstance().getConfigManager().getConfig().getString("Game.MySQL.table_prefix") + "storage"
-                           + "  (World_Seeds VARCHAR(255),"
-                           + "   advancement_id LONG);";
-
+        String create_storage = "CREATE TABLE IF NOT EXISTS " + AdvancementHunt.getInstance().getConfigManager().getConfig().getString("Game.MySQL.table_prefix") + "advancements"
+                           + "  (advancement_id VARCHAR(255));";
         statement.execute(create_storage);
+
+        String create_seed_storage = "CREATE TABLE IF NOT EXISTS " + AdvancementHunt.getInstance().getConfigManager().getConfig().getString("Game.MySQL.table_prefix") + "seeds"
+                + "  (world_seeds LONG);";
+        statement.execute(create_seed_storage);
     }
     public void close() {
         if(connection != null) {
