@@ -43,7 +43,7 @@ public class ConfigManager {
         getConfig().set("Game.MySQL.Database", "advancementhunt");
         getConfig().set("Game.MySQL.Options", "?autoReconnect=true");
         getConfig().set("Game.MySQL.User", "root");
-        getConfig().set("Game.MySQL.Password", "passwd");
+        getConfig().set("Game.MySQL.Password", "'passwd'");
         getConfig().set("Game.MySQL.table_prefix", "ah_");
         getConfig().set("Game.MySQL.Use_db",false);
         getConfig().set("Game.Extra.Hub_Server","Hub");
