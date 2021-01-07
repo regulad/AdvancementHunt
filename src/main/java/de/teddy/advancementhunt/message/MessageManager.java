@@ -3,6 +3,7 @@ package de.teddy.advancementhunt.message;
 import com.destroystokyo.paper.Title;
 import de.teddy.advancementhunt.AdvancementHunt;
 import de.teddy.advancementhunt.config.Messages;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -41,6 +42,8 @@ public class MessageManager {
                 return SendType.ACTION_BAR;
             case "CHAT":
                 return SendType.CHAT;
+            case "SUBTITLE":
+                return SendType.SUBTITLE;
         }
 
         AdvancementHunt.getInstance().getLogger().info("Invalid Message Send type found using default one ('CHAT')");
@@ -73,6 +76,8 @@ public class MessageManager {
                 return MessageType.STOP_GAME;
             case "Start_Game":
                 return MessageType.START_GAME;
+            case "create_world":
+                return MessageType.CREATING_WORLD;
         }
 
         AdvancementHunt.getInstance().getLogger().info("message type: " + message_type + " Not found returning random type lol");
@@ -101,21 +106,24 @@ public class MessageManager {
             switch (message.getSendType())
             {
                 case CHAT:
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',message.getMessage()));
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage())));
                     return;
                 case TITLE:
-                    player.sendTitle(new Title(ChatColor.translateAlternateColorCodes('&',message.getMessage()),""));
+                    player.sendTitle(new Title(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage())),""));
                     return;
                 case ACTION_BAR:
-                    player.sendActionBar(ChatColor.translateAlternateColorCodes('&',message.getMessage()));
+                    player.sendActionBar(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage())));
+                    return;
+                case SUBTITLE:
+                    player.sendTitle(new Title("",ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage()))));
                     return;
             }
         }
 
-        AdvancementHunt.getInstance().getLogger().info("Agh, seems like abhi has did a ooopse");
+        AdvancementHunt.getInstance().getLogger().info("Unable to send message to player");
     }
 
-    public void sendMessageReplace(Player player,MessageType messageType,String regex,String replacements)
+    public void sendMessageReplace(Player player, MessageType messageType, String regex, String replacements)
     {
         MessageObject message = getMessage(messageType);
 
@@ -124,18 +132,50 @@ public class MessageManager {
             switch (message.getSendType())
             {
                 case CHAT:
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',message.getMessage().replaceAll(regex,replacements)));
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage().replaceAll(regex,replacements))));
                     return;
                 case TITLE:
-                    player.sendTitle(new Title(ChatColor.translateAlternateColorCodes('&',message.getMessage().replaceAll(regex,replacements)),""));
+                    player.sendTitle(new Title(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage().replaceAll(regex,replacements))),""));
                     return;
                 case ACTION_BAR:
-                    player.sendActionBar(ChatColor.translateAlternateColorCodes('&',message.getMessage().replaceAll(regex,replacements)));
+                    player.sendActionBar(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage().replaceAll(regex,replacements))));
+                    return;
+                case SUBTITLE:
+                    player.sendTitle(new Title("",ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,message.getMessage()))));
                     return;
             }
         }
 
-        AdvancementHunt.getInstance().getLogger().info("Agh, seems like abhi has did a ooopse");
+        AdvancementHunt.getInstance().getLogger().info("Unable to send message to player");
+    }
+
+    public void sendFormatMessage(Player player,MessageType messageType,ArrayList<MessageFormat> format)
+    {
+        MessageObject message = getMessage(messageType);
+
+        String text = message.getMessage();
+
+        for(MessageFormat format1 : format)
+        {
+            text.replaceAll(format1.getRegex(),format1.getReplace());
+        }
+        if(message != null)
+        {
+            switch (message.getSendType())
+            {
+                case CHAT:
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,text)));
+                    return;
+                case TITLE:
+                    player.sendTitle(new Title(ChatColor.translateAlternateColorCodes('&',PlaceholderAPI.setPlaceholders(player,text)),""));
+                    return;
+                case ACTION_BAR:
+                    player.sendActionBar(ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player,text)));
+                    return;
+            }
+        }
+
+        AdvancementHunt.getInstance().getLogger().info("Unable to send message to player");
     }
     public static Messages getMessageConfig()
     {

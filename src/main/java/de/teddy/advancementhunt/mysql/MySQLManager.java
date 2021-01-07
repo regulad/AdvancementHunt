@@ -21,7 +21,7 @@ public class MySQLManager {
             ArrayList<String> advancement_keys = (ArrayList<String>) AdvancementHunt.getInstance().getAdvancementSeed().getConfig().getStringList("Advancement-ids");
             return advancement_keys;
         }
-        this.table_name = configManager.getMessage("Game.MySQL.Table_Name");
+        this.table_name = configManager.getMessage("Game.MySQL.table_prefix") + "advancements";
         ArrayList<String> list = new ArrayList<String>();
         ResultSet resultSet = AdvancementHunt.getInstance().getMysql().query("SELECT * FROM " + this.table_name);
         try {
@@ -38,12 +38,12 @@ public class MySQLManager {
             ArrayList<Long> seeds = (ArrayList<Long>) AdvancementHunt.getInstance().getAdvancementSeed().getConfig().getLongList("World_Seeds");
             return seeds;
         }
-        this.table_name = configManager.getMessage("Game.MySQL.Table_Name");
+        this.table_name = configManager.getMessage("Game.MySQL.table_prefix") + "seeds";
         ArrayList<Long> list = new ArrayList<Long>();
         ResultSet resultSet = AdvancementHunt.getInstance().getMysql().query("SELECT * FROM " + this.table_name);
         try {
             while(resultSet.next()) {
-                list.add(resultSet.getLong("World_Seeds"));
+                list.add(resultSet.getLong("world_seeds"));
             }
             return list;
         } catch (Exception e) { }

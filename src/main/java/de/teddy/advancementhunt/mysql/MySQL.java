@@ -3,6 +3,7 @@ package de.teddy.advancementhunt.mysql;
 import de.teddy.advancementhunt.AdvancementHunt;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class MySQL {
 
@@ -36,17 +37,26 @@ public class MySQL {
 
     private void setUpTable() throws Exception
     {
-        AdvancementHunt.getInstance().getLogger().info("Setting up player stat table....");
+        AdvancementHunt.getInstance().getLogger().info("Setting up mysql tables....");
         Statement statement = connection.createStatement();
-        String sql = "CREATE TABLE IF NOT EXISTS player_stat"
+
+        String sql = "CREATE TABLE IF NOT EXISTS " + AdvancementHunt.getInstance().getConfigManager().getConfig().getString("Game.MySQL.table_prefix") + "player_stat"
                 + "  (uuid             VARCHAR(255) UNIQUE,"
                 + "   playername       VARCHAR(255) NOT NULL default '',"
                 + "   kills            INT NOT NULL default 0,"
                 + "   deaths           INT NOT NULL default 0,"
-                + "   Looses           INT NOT NULL default 0"
-                + "   Wins             INT NOT NULL default 0"
+                + "   Losses           INT NOT NULL default 0,"
+                + "   Wins             INT NOT NULL default 0,"
                 + "   PRIMARY KEY  (uuid));";
         statement.execute(sql);
+
+        String create_storage = "CREATE TABLE IF NOT EXISTS " + AdvancementHunt.getInstance().getConfigManager().getConfig().getString("Game.MySQL.table_prefix") + "advancements"
+                           + "  (advancement_id VARCHAR(255));";
+        statement.execute(create_storage);
+
+        String create_seed_storage = "CREATE TABLE IF NOT EXISTS " + AdvancementHunt.getInstance().getConfigManager().getConfig().getString("Game.MySQL.table_prefix") + "seeds"
+                + "  (world_seeds LONG);";
+        statement.execute(create_seed_storage);
     }
     public void close() {
         if(connection != null) {

@@ -66,7 +66,8 @@ public class GamestartCommand implements CommandExecutor {
             this.distance = 10;
 
             if(Bukkit.getOnlinePlayers().size() >= LobbyState.MIN_PLAYERS) {
-                player.sendMessage("§cCreating World...");
+                AdvancementHunt.getInstance().getMessageManager().sendMessage(player,MessageType.CREATING_WORLD);
+                // player.sendMessage("§cCreating World...");
                 AdvancementHunt.getInstance().getUtils().getWorldUtil().worldCreate(AdvancementHunt.getInstance().getWorldName(), World.Environment.NORMAL, this.seed);
 
                 // Fist Make world and load them
@@ -75,6 +76,7 @@ public class GamestartCommand implements CommandExecutor {
                 normal_world.seed(Long.parseLong(this.seed));
                 normal_world.environment(World.Environment.NORMAL);
                 normal_world.createWorld();
+                AdvancementHunt.getInstance().getMultiverseCore().getMVWorldManager().getMVWorld(AdvancementHunt.getInstance().getWorldName()).setSpawnLocation(Bukkit.getWorld(AdvancementHunt.getInstance().getWorldName()).getSpawnLocation());
 
                 WorldCreator nether_world = new WorldCreator(AdvancementHunt.getInstance().getWorldName() + "_nether");
                 nether_world.environment(World.Environment.NETHER);
@@ -143,7 +145,9 @@ public class GamestartCommand implements CommandExecutor {
         this.distance = Integer.parseInt(args[7]);
 
         if(Bukkit.getOnlinePlayers().size() >= LobbyState.MIN_PLAYERS) {
-            player.sendMessage("§cCreating World...");
+            // New message update
+            AdvancementHunt.getInstance().getMessageManager().sendMessage(player,MessageType.CREATING_WORLD);
+            // player.sendMessage("§cCreating World...");
             AdvancementHunt.getInstance().getUtils().getWorldUtil().worldCreate(AdvancementHunt.getInstance().getWorldName(), World.Environment.NORMAL, this.seed);
 
             // Fist Make world and load them
@@ -152,6 +156,7 @@ public class GamestartCommand implements CommandExecutor {
             normal_world.seed(Long.parseLong(this.seed));
             normal_world.environment(World.Environment.NORMAL);
             normal_world.createWorld();
+            AdvancementHunt.getInstance().getMultiverseCore().getMVWorldManager().getMVWorld(AdvancementHunt.getInstance().getWorldName()).setSpawnLocation(Bukkit.getWorld(AdvancementHunt.getInstance().getWorldName()).getSpawnLocation());
 
             WorldCreator nether_world = new WorldCreator(AdvancementHunt.getInstance().getWorldName() + "_nether");
             nether_world.environment(World.Environment.NETHER);
