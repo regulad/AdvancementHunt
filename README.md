@@ -1,11 +1,15 @@
 # AdvancementHunt
 
-## Setup
-
-1. Install the following plugins:
+## Requirements
+1. The following plugins:
     * Multiverse-Core
     * Multiverse-NetherPortals
     * PlaceholderAPI
+1. Java 11
+1. [Paper](https://github.com/PaperMC/Paper), or a [fork that fully supports the API](https://github.com/topics/paper-fork), running Minecraft 1.15 or higher
+
+## Setup
+
 1. MySQL in config.yml
     * This can be disabled, and the plugin will work.
 1. The set lobby spawn
@@ -17,15 +21,21 @@
 * `/set <LobbySpawn>`: Sets the Lobbyspawn
 
 ### Permissions
-* Have a look at the config.yml
+
+#### You can change these if you want
+
+1. **StartGame**: advancementhunt.command.start
+1. **SetLocation**: advancementhunt.command.set
 
 ### MySQL
-* Have a look at the config.yml
+
+#### You can disable this if you want to use the plugin standalone
+
+1. You can change the host, port, database, database prefix, JDBC options, username, and password.
 
 ## Placeholder API Placeholders
 
 ### Identifier is `ah`
-
 
 * `%ah_time_remaining%` - The remaining time. (HH:MM:ss)
 * `%ah_wins%` - The total amount of wins a player has. (Pulled from DB, not cached!)
