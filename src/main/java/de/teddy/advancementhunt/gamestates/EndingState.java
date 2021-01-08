@@ -3,6 +3,7 @@ package de.teddy.advancementhunt.gamestates;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import de.teddy.advancementhunt.AdvancementHunt;
+
 import de.teddy.advancementhunt.timer.EndingTimer;
 import de.teddy.advancementhunt.util.FightUtil;
 import org.bukkit.Bukkit;
@@ -12,13 +13,17 @@ import java.sql.PreparedStatement;
 
 public class EndingState extends GameState {
 
-    EndingTimer endingTimer = new EndingTimer();
-    private AdvancementHunt plugin;
+    private final EndingTimer endingTimer;
+    private final AdvancementHunt plugin;
+
+    public EndingState(AdvancementHunt plugin) {
+        this.plugin = plugin;
+        this.endingTimer = new EndingTimer(plugin);
+    }
 
     @Override
     public void start() {
         endingTimer.start();
-        plugin = AdvancementHunt.getInstance();
 
         plugin.getActionbarManager().setRemainingTime(null);
 
@@ -39,6 +44,7 @@ public class EndingState extends GameState {
         endingTimer.cancel();
 
         FightUtil fightUtil = plugin.getUtils().getFightUtil();
+        String hubServer = plugin.getConfigManager().getMessage("Game.Extra.Hub_Server");
 
         for(Player player : Bukkit.getOnlinePlayers()) {
 
@@ -62,7 +68,7 @@ public class EndingState extends GameState {
             // Instad of kicking players i am going to sent them to hub server
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Connect");
-            out.writeUTF(plugin.getConfigManager().getMessage("Game.Extra.Hub_Server"));
+            out.writeUTF(hubServer);
             player.sendPluginMessage(plugin,"BungeeCord",out.toByteArray());
 
             // player.kickPlayer(AdvancementHunt.getInstance().getConfigManager().getMessage("Game.Messages.GameIsOver"));
@@ -85,7 +91,5 @@ public class EndingState extends GameState {
 
         plugin.getTeamManager().clear();
         plugin.getUtils().getFightUtil().clear();
-
-        plugin = null;
     }
 }

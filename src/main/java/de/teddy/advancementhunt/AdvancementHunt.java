@@ -41,7 +41,7 @@ public final class AdvancementHunt extends JavaPlugin {
 
     private MySQL mysql;
     private final Utils utils = new Utils();
-    private GameStateManager gameStateManager = new GameStateManager();
+    private GameStateManager gameStateManager;
     private final PermissionManager permissionManager = new PermissionManager();
     private ConfigManager configManager;
     private MySQLManager mySQLManager;
@@ -62,7 +62,7 @@ public final class AdvancementHunt extends JavaPlugin {
 
         worldName = configManager.getMessage("Game.Extra.WorldName");
 
-        gameStateManager = new GameStateManager();
+        gameStateManager = new GameStateManager(instance);
         gameStateManager.setGameState(GameState.LOBBY_STATE);
 
         messageManager = new MessageManager(messages);
@@ -94,7 +94,7 @@ public final class AdvancementHunt extends JavaPlugin {
     private void register() {
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(new PlayerConnectionListener(), this);
-        pluginManager.registerEvents(new PlayerAdvancementDoneListener(), this);
+        pluginManager.registerEvents(new PlayerAdvancementDoneListener(instance), this);
         pluginManager.registerEvents(new PlayerDeathListener(), this);
 
         this.getCommand("set").setExecutor(new SetCommand(instance));

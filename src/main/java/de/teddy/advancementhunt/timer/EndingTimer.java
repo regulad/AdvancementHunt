@@ -10,16 +10,22 @@ public class EndingTimer extends Timer {
 
     private int seconds = 5;
 
+    private final AdvancementHunt plugin;
+
+    public EndingTimer(AdvancementHunt plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public void start() {
 
         counter = Bukkit.getScheduler().scheduleSyncRepeatingTask(AdvancementHunt.getInstance(), () -> {
             if (seconds == 0) {
                 cancel();
-                AdvancementHunt.getInstance().getGameStateManager().resetGameStates();
+                plugin.getGameStateManager().resetGameStates();
             } else {
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    AdvancementHunt.getInstance().getMessageManager().sendMessageReplace(player, MessageType.STOP_GAME, "%seconds%", seconds + "");
+                    plugin.getMessageManager().sendMessageReplace(player, MessageType.STOP_GAME, "%seconds%", seconds + "");
                 }
             }
             seconds--;
