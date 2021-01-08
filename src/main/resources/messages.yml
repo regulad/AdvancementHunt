@@ -10,19 +10,19 @@
 # ----------------------------------------------------------------------------
 
 Messages:
-  Hunter_won:
+  hunter_won:
     send_type: "TITLE"
     message: "Winner: The Hunters"
-  Game_over:
+  game_over:
     send_type: "ACTION_BAR"
     message: "The game is over!"
-  Player_offline:
+  player_offline:
     send_type: "CHAT"
     message: "&his player is offline!"
-  Time_left:
+  time_left:
     send_type: "ACTION_BAR"
     message: "Time remaining: %ah_time_remaining%"
-  THE_FLEEING_PLAYER:
+  the_fleeing_player:
     send_type: "TITLE"
     message: "The Fleeing Player: %ah_player%"
   the_hunter:
@@ -37,9 +37,12 @@ Messages:
   is_fleeing_player:
     send_type: "TITLE"
     message: "The hunters are approaching! Get the Advancement %ah_name%!"
-  Stop_Game:
+  stop_game:
     send_type: "ACTION_BAR"
     message: "The game stops in %countdown%..."
-  Start_Game:
+  in_progress_game:
+    send_type: "CHAT"
+    message: "&cRound already started!"
+  start_game:
     send_type: "ACTION_BAR"
     message: "The game starts in %countdown%..."

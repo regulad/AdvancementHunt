@@ -56,7 +56,7 @@ public final class AdvancementHunt extends JavaPlugin {
 
         actionbarManager = new ActionbarManager(instance);
         configManager = new ConfigManager();
-        mySQLManager = new MySQLManager(configManager);
+        mySQLManager = new MySQLManager(instance);
 
         Messages messages = new Messages();
 
@@ -69,7 +69,7 @@ public final class AdvancementHunt extends JavaPlugin {
 
         this.initMySQL();
 
-        new SpigotExpansion().register();
+        new SpigotExpansion(instance).register();
 
         this.register();
 
@@ -93,9 +93,9 @@ public final class AdvancementHunt extends JavaPlugin {
 
     private void register() {
         PluginManager pluginManager = Bukkit.getPluginManager();
-        pluginManager.registerEvents(new PlayerConnectionListener(), this);
+        pluginManager.registerEvents(new PlayerConnectionListener(instance), this);
         pluginManager.registerEvents(new PlayerAdvancementDoneListener(instance), this);
-        pluginManager.registerEvents(new PlayerDeathListener(), this);
+        pluginManager.registerEvents(new PlayerDeathListener(instance), this);
 
         this.getCommand("set").setExecutor(new SetCommand(instance));
         this.getCommand("gamestart").setExecutor(new GamestartCommand(instance));

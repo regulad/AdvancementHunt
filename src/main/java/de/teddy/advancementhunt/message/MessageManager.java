@@ -45,20 +45,21 @@ public class MessageManager {
         }
 
         AdvancementHunt.getInstance().getLogger().info("Invalid Message Send type found using default one ('CHAT')");
+
         return SendType.CHAT;
     }
 
     private MessageType getMessageType(String message_type) {
-        switch (message_type) {
-            case "Hunter_won":
+        switch (message_type.toLowerCase()) {
+            case "hunter_won":
                 return MessageType.HUNTERWON;
-            case "Game_over":
+            case "game_over":
                 return MessageType.GAME_OVER;
-            case "Player_offline":
+            case "player_offline":
                 return MessageType.PLAYER_NOT_ONLINE;
-            case "Time_left":
+            case "time_left":
                 return MessageType.TIME_LEFT;
-            case "THE_FLEEING_PLAYER":
+            case "the_fleeing_player":
                 return MessageType.THE_FLEEING_PLAYER;
             case "the_hunter":
                 return MessageType.THE_HUNTER;
@@ -68,9 +69,11 @@ public class MessageManager {
                 return MessageType.NOT_ENOUGH_PLAYERS;
             case "is_fleeing_player":
                 return MessageType.ISFLEEING_PLAYER;
-            case "Stop_Game":
+            case "stop_game":
                 return MessageType.STOP_GAME;
-            case "Start_Game":
+            case "in_progress_game":
+                return MessageType.IN_PROGRESS_GAME;
+            case "start_game":
                 return MessageType.START_GAME;
             case "create_world":
                 return MessageType.CREATING_WORLD;
@@ -80,7 +83,7 @@ public class MessageManager {
         return MessageType.STOP_GAME;
     }
 
-    private MessageObject getMessage(MessageType messageType) {
+    public MessageObject getMessage(MessageType messageType) {
         for (MessageObject message_objects : messages) {
             if (message_objects.getMessageType() == messageType) {
                 return message_objects;
