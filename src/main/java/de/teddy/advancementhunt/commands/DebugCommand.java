@@ -9,6 +9,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class DebugCommand implements CommandExecutor {
 
+    private final AdvancementHunt plugin;
+
+    public DebugCommand(AdvancementHunt plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if(!(sender instanceof Player)) {
@@ -16,7 +22,7 @@ public class DebugCommand implements CommandExecutor {
         }
         Player player = (Player) sender;
 
-        player.sendMessage(AdvancementHunt.getInstance().getTeamManager().getTeams().get(player).getTeamName());
+        player.sendMessage(plugin.getTeamManager().getTeams().get(player).getTeamName());
 
         return false;
     }

@@ -3,8 +3,10 @@ package de.teddy.advancementhunt.commands;
 import de.teddy.advancementhunt.AdvancementHunt;
 import de.teddy.advancementhunt.gamestates.LobbyState;
 import de.teddy.advancementhunt.message.MessageType;
+import de.teddy.advancementhunt.mysql.MySQLManager;
 import de.teddy.advancementhunt.permissions.Permission;
 import de.teddy.advancementhunt.teams.Team;
+import de.teddy.advancementhunt.teams.TeamManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -18,6 +20,14 @@ import java.util.Random;
 
 public class GamestartCommand implements CommandExecutor {
 
+    private final AdvancementHunt plugin;
+    private final MySQLManager mySQLManager;
+
+    public GamestartCommand(AdvancementHunt plugin) {
+        this.plugin = plugin;
+        this.mySQLManager = plugin.getMySQLManager();
+    }
+
     private final LobbyState lobbyState = (LobbyState) AdvancementHunt.getInstance().getGameStateManager().getCurrentGameState();
 
     @Override
@@ -26,7 +36,7 @@ public class GamestartCommand implements CommandExecutor {
             return true;
         }
 
-        if (!(AdvancementHunt.getInstance().getGameStateManager().getCurrentGameState() instanceof LobbyState)) {
+        if (!(plugin.getGameStateManager().getCurrentGameState() instanceof LobbyState)) {
             System.out.println("In LobbyState");
             return true;
         }
@@ -57,8 +67,8 @@ public class GamestartCommand implements CommandExecutor {
 
         if (!(args.length == 8)) {
             Random random = new Random();
-            advancementId = AdvancementHunt.getInstance().getMySQLManager().getAdvancements().get(random.nextInt(AdvancementHunt.getInstance().getMySQLManager().getAdvancements().size()));
-            seed = AdvancementHunt.getInstance().getMySQLManager().getSeeds().get(new Random().nextInt(AdvancementHunt.getInstance().getMySQLManager().getSeeds().size())) + "";
+            advancementId = mySQLManager.getAdvancements().get(random.nextInt(mySQLManager.getAdvancements().size()));
+            seed = mySQLManager.getSeeds().get(new Random().nextInt(mySQLManager.getSeeds().size())) + "";
             timeLimit = 30;
             countdownSeconds = 5;
             username = ((Player) Bukkit.getOnlinePlayers().toArray()[new Random().nextInt(Bukkit.getOnlinePlayers().toArray().length)]).getName();
@@ -66,53 +76,30 @@ public class GamestartCommand implements CommandExecutor {
             distance = 10;
 
             if (Bukkit.getOnlinePlayers().size() >= LobbyState.MIN_PLAYERS) {
-                AdvancementHunt.getInstance().getMessageManager().sendMessage(player, MessageType.CREATING_WORLD);
+                plugin.getMessageManager().sendMessage(player, MessageType.CREATING_WORLD);
                 // player.sendMessage("§cCreating World...");
-                AdvancementHunt.getInstance().getUtils().getWorldUtil().worldCreate(AdvancementHunt.getInstance().getWorldName(), World.Environment.NORMAL, seed);
+                plugin.getUtils().getWorldUtil().worldCreate(plugin.getWorldName(), World.Environment.NORMAL, seed);
 
                 // Fist Make world and load them
                 // #createWorld() create world and loads it
-                WorldCreator normal_world = new WorldCreator(AdvancementHunt.getInstance().getWorldName());
-                normal_world.seed(Long.parseLong(seed));
-                normal_world.environment(World.Environment.NORMAL);
-                normal_world.createWorld();
-                AdvancementHunt.getInstance().getMultiverseCore().getMVWorldManager().getMVWorld(AdvancementHunt.getInstance().getWorldName()).setSpawnLocation(Bukkit.getWorld(AdvancementHunt.getInstance().getWorldName()).getSpawnLocation());
+                WorldCreator normal_world = new WorldCreator(plugin.getWorldName());
 
-                WorldCreator nether_world = new WorldCreator(AdvancementHunt.getInstance().getWorldName() + "_nether");
-                nether_world.environment(World.Environment.NETHER);
-                nether_world.createWorld();
+                runCheck(advancementId, seed, timeLimit, username, distance, normal_world);
 
-                WorldCreator end_world = new WorldCreator(AdvancementHunt.getInstance().getWorldName() + "_the_end");
-                end_world.environment(World.Environment.THE_END);
-                end_world.createWorld();
-
-                AdvancementHunt.getInstance().getTeamManager().setInTeam(Bukkit.getPlayer(username), Team.PLAYER);
-
-                for (Player allPlayers : Bukkit.getOnlinePlayers()) {
-                    if (AdvancementHunt.getInstance().getTeamManager().getTeams().get(allPlayers) != Team.PLAYER) {
-                        AdvancementHunt.getInstance().getTeamManager().setInTeam(allPlayers, Team.HUNTER);
-                    }
-                }
-
-                AdvancementHunt.getInstance().setAdvancement_id(advancementId);
-                AdvancementHunt.getInstance().setMinutesUntilEnd(timeLimit);
-
-                AdvancementHunt.getInstance().setDistance(distance);
-
-                AdvancementHunt.getInstance().setGlow(true);
-                AdvancementHunt.getInstance().setCompass(true);
+                plugin.setGlow(true);
+                plugin.setCompass(true);
 
                 lobbyState.getLobbyTimer().setSeconds(countdownSeconds);
                 lobbyState.getLobbyTimer().start();
             } else {
-                AdvancementHunt.getInstance().getMessageManager().sendMessageReplace(player, MessageType.NOT_ENOUGH_PLAYERS, "%count%", LobbyState.MIN_PLAYERS - Bukkit.getOnlinePlayers().size() + "");
+                plugin.getMessageManager().sendMessageReplace(player, MessageType.NOT_ENOUGH_PLAYERS, "%count%", LobbyState.MIN_PLAYERS - Bukkit.getOnlinePlayers().size() + "");
                 // player.sendMessage(AdvancementHunt.getInstance().getConfigManager().getMessageWithReplace("Game.Messages.NotEnoughPlayers", "%count%", String.valueOf((lobbyState.MIN_PLAYERS - Bukkit.getOnlinePlayers().size()))));
             }
             return true;
         }
 
 
-        if (!(player.hasPermission(AdvancementHunt.getInstance().getPermissionManager().getPermission(Permission.START)))) {
+        if (!(player.hasPermission(plugin.getPermissionManager().getPermission(Permission.START)))) {
             return true;
         }
 
@@ -120,14 +107,14 @@ public class GamestartCommand implements CommandExecutor {
             advancementId = args[0];
         } else {
             Random random = new Random();
-            advancementId = AdvancementHunt.getInstance().getMySQLManager().getAdvancements().get(random.nextInt(AdvancementHunt.getInstance().getMySQLManager().getAdvancements().size()));
+            advancementId = mySQLManager.getAdvancements().get(random.nextInt(mySQLManager.getAdvancements().size()));
         }
 
         seed = args[1];
 
         if (args[1].equalsIgnoreCase("random")) {
             // if seed is random set seed to random long
-            seed = AdvancementHunt.getInstance().getMySQLManager().getSeeds().get(new Random().nextInt(AdvancementHunt.getInstance().getMySQLManager().getSeeds().size())) + "";
+            seed = mySQLManager.getSeeds().get(new Random().nextInt(mySQLManager.getSeeds().size())) + "";
         }
         timeLimit = Integer.parseInt(args[2]);
         countdownSeconds = Integer.parseInt(args[3]);
@@ -135,7 +122,7 @@ public class GamestartCommand implements CommandExecutor {
             if (Bukkit.getPlayer(args[4]) != null) {
                 username = args[4];
             } else {
-                AdvancementHunt.getInstance().getMessageManager().sendMessage(player, MessageType.PLAYER_NOT_ONLINE);
+                plugin.getMessageManager().sendMessage(player, MessageType.PLAYER_NOT_ONLINE);
                 // player.sendMessage(AdvancementHunt.getInstance().getConfigManager().getMessage("Game.Messages.NotOnline"));
                 return true;
             }
@@ -148,46 +135,54 @@ public class GamestartCommand implements CommandExecutor {
 
         if (Bukkit.getOnlinePlayers().size() >= LobbyState.MIN_PLAYERS) {
             // New message update
-            AdvancementHunt.getInstance().getMessageManager().sendMessage(player, MessageType.CREATING_WORLD);
+            plugin.getMessageManager().sendMessage(player, MessageType.CREATING_WORLD);
             // player.sendMessage("§cCreating World...");
-            AdvancementHunt.getInstance().getUtils().getWorldUtil().worldCreate(AdvancementHunt.getInstance().getWorldName(), World.Environment.NORMAL, seed);
+            plugin.getUtils().getWorldUtil().worldCreate(plugin.getWorldName(), World.Environment.NORMAL, seed);
 
             // Fist Make world and load them
             // #createWorld() create world and loads it
-            WorldCreator normal_world = new WorldCreator(AdvancementHunt.getInstance().getWorldName());
-            normal_world.seed(Long.parseLong(seed));
-            normal_world.environment(World.Environment.NORMAL);
-            normal_world.createWorld();
-            AdvancementHunt.getInstance().getMultiverseCore().getMVWorldManager().getMVWorld(AdvancementHunt.getInstance().getWorldName()).setSpawnLocation(Bukkit.getWorld(AdvancementHunt.getInstance().getWorldName()).getSpawnLocation());
+            WorldCreator normal_world = new WorldCreator(plugin.getWorldName());
+            runCheck(advancementId, seed, timeLimit, username, distance, normal_world);
 
-            WorldCreator nether_world = new WorldCreator(AdvancementHunt.getInstance().getWorldName() + "_nether");
-            nether_world.environment(World.Environment.NETHER);
-            nether_world.createWorld();
-
-            WorldCreator end_world = new WorldCreator(AdvancementHunt.getInstance().getWorldName() + "_the_end");
-            end_world.environment(World.Environment.THE_END);
-            end_world.createWorld();
-
-            AdvancementHunt.getInstance().getTeamManager().setInTeam(Bukkit.getPlayer(username), Team.PLAYER);
-            for (Player allPlayers : Bukkit.getOnlinePlayers()) {
-                if (AdvancementHunt.getInstance().getTeamManager().getTeams().get(allPlayers) != Team.PLAYER) {
-                    AdvancementHunt.getInstance().getTeamManager().setInTeam(allPlayers, Team.HUNTER);
-                }
-            }
-            AdvancementHunt.getInstance().setAdvancement_id(advancementId);
-            AdvancementHunt.getInstance().setMinutesUntilEnd(timeLimit);
-
-            AdvancementHunt.getInstance().setDistance(distance);
-
-            AdvancementHunt.getInstance().setGlow(glow);
-            AdvancementHunt.getInstance().setCompass(compass);
+            plugin.setGlow(glow);
+            plugin.setCompass(compass);
 
             lobbyState.getLobbyTimer().setSeconds(countdownSeconds);
             lobbyState.getLobbyTimer().start();
         } else {
-            player.sendMessage(AdvancementHunt.getInstance().getConfigManager().getMessageWithReplace("Game.Messages.NotEnoughPlayers", "%count%", String.valueOf((LobbyState.MIN_PLAYERS - Bukkit.getOnlinePlayers().size()))));
+            player.sendMessage(plugin.getConfigManager().getMessageWithReplace("Game.Messages.NotEnoughPlayers", "%count%", String.valueOf((LobbyState.MIN_PLAYERS - Bukkit.getOnlinePlayers().size()))));
         }
 
         return true;
+    }
+
+    private void runCheck(String advancementId, String seed, int timeLimit, String username, int distance, WorldCreator normal_world) {
+        normal_world.seed(Long.parseLong(seed));
+        normal_world.environment(World.Environment.NORMAL);
+        normal_world.createWorld();
+        plugin.getMultiverseCore().getMVWorldManager().getMVWorld(plugin.getWorldName()).setSpawnLocation(Bukkit.getWorld(plugin.getWorldName()).getSpawnLocation());
+
+        WorldCreator nether_world = new WorldCreator(plugin.getWorldName() + "_nether");
+        nether_world.environment(World.Environment.NETHER);
+        nether_world.createWorld();
+
+        WorldCreator end_world = new WorldCreator(plugin.getWorldName() + "_the_end");
+        end_world.environment(World.Environment.THE_END);
+        end_world.createWorld();
+
+        plugin.getTeamManager().setInTeam(Bukkit.getPlayer(username), Team.PLAYER);
+
+        TeamManager teamManager = plugin.getTeamManager();
+
+        for (Player allPlayers : Bukkit.getOnlinePlayers()) {
+            if (teamManager.getTeams().get(allPlayers) != Team.PLAYER) {
+                teamManager.setInTeam(allPlayers, Team.HUNTER);
+            }
+        }
+
+        plugin.setAdvancement_id(advancementId);
+        plugin.setMinutesUntilEnd(timeLimit);
+
+        plugin.setDistance(distance);
     }
 }

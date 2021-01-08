@@ -23,9 +23,12 @@ import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 
 public final class AdvancementHunt extends JavaPlugin {
+
+    private static AdvancementHunt instance;
 
     private String worldName = null;
     private int minutesUntilEnd;
@@ -36,8 +39,6 @@ public final class AdvancementHunt extends JavaPlugin {
 
     private Location compassLoc;
 
-    private static AdvancementHunt instance;
-
     private MySQL mysql;
     private final Utils utils = new Utils();
     private GameStateManager gameStateManager = new GameStateManager();
@@ -45,23 +46,27 @@ public final class AdvancementHunt extends JavaPlugin {
     private ConfigManager configManager;
     private MySQLManager mySQLManager;
     private final TeamManager teamManager = new TeamManager();
-    private final ActionbarManager actionbarManager = new ActionbarManager();
+    private ActionbarManager actionbarManager;
     private MessageManager messageManager;
     private AdvancementSeed advancementSeed;
 
     @Override
     public void onEnable() {
         instance = this;
+
+        actionbarManager = new ActionbarManager(instance);
         configManager = new ConfigManager();
         mySQLManager = new MySQLManager(configManager);
+
         Messages messages = new Messages();
 
-        worldName = getConfigManager().getMessage("Game.Extra.WorldName");
+        worldName = configManager.getMessage("Game.Extra.WorldName");
 
         gameStateManager = new GameStateManager();
         gameStateManager.setGameState(GameState.LOBBY_STATE);
 
         messageManager = new MessageManager(messages);
+
         this.initMySQL();
 
         new SpigotExpansion().register();
@@ -72,11 +77,13 @@ public final class AdvancementHunt extends JavaPlugin {
     }
 
     private void initMySQL() {
-        if(!AdvancementHunt.getInstance().getConfigManager().getConfig().getBoolean("Game.MySQL.Use_db")) {
+        if(!configManager.getConfig().getBoolean("Game.MySQL.Use_db")) {
             advancementSeed = new AdvancementSeed();
             return;
         }
-       ConfigManager configManager = AdvancementHunt.getInstance().getConfigManager();
+
+       ConfigManager configManager = instance.getConfigManager();
+
         try {
             mysql = new MySQL(configManager.getMessage("Game.MySQL.Host"),Integer.parseInt(configManager.getMessage("Game.MySQL.Port")), configManager.getMessage("Game.MySQL.Database"), configManager.getMessage("Game.MySQL.User"), configManager.getMessage("Game.MySQL.Password"));
         } catch (Exception e) {
@@ -90,19 +97,21 @@ public final class AdvancementHunt extends JavaPlugin {
         pluginManager.registerEvents(new PlayerAdvancementDoneListener(), this);
         pluginManager.registerEvents(new PlayerDeathListener(), this);
 
-        this.getCommand("set").setExecutor(new SetCommand());
-        this.getCommand("gamestart").setExecutor(new GamestartCommand());
-        this.getCommand("debug").setExecutor(new DebugCommand());
+        this.getCommand("set").setExecutor(new SetCommand(instance));
+        this.getCommand("gamestart").setExecutor(new GamestartCommand(instance));
+        this.getCommand("debug").setExecutor(new DebugCommand(instance));
 
         // set Tab compleaters
         getCommand("gamestart").setTabCompleter(new GameStartTabCompleter());
     }
 
 
+    /**
+     * Get the {@link MultiverseCore} instance.
+     *
+     * @return the multiverse core instance.
+     */
     public MultiverseCore getMultiverseCore() {
-        /*
-         * Hmm its good to remove the Exception
-         */
         Plugin plugin = getServer().getPluginManager().getPlugin("Multiverse-Core");
 
         if (plugin instanceof MultiverseCore) {
@@ -114,15 +123,34 @@ public final class AdvancementHunt extends JavaPlugin {
 
     public static AdvancementHunt getInstance() { return instance; }
 
+    /**
+     * Get the {@link MessageManager} instance.
+     *
+     * @return the message manager
+     */
+    @NotNull
     public MessageManager getMessageManager()
     {
         return messageManager;
     }
 
+    /**
+     * Get the {@link AdvancementSeed} seed.
+     *
+     * @return the world seed.
+     */
+    @NotNull
     public AdvancementSeed getAdvancementSeed()
     {
         return advancementSeed;
     }
+
+    /**
+     * Get the {@link Utils} instance.
+     *
+     * @return the utilities instance.
+     */
+    @NotNull
     public Utils getUtils() { return utils; }
 
     public GameStateManager getGameStateManager() { return gameStateManager; }
@@ -132,20 +160,56 @@ public final class AdvancementHunt extends JavaPlugin {
 
     public String getWorldName() { return worldName; }
 
+    /**
+     * Get the {@link PermissionManager} instance.
+     *
+     * @return the permission manager
+     */
+    @NotNull
     public PermissionManager getPermissionManager() { return permissionManager; }
 
+    /**
+     * Get the {@link MySQL} instance.
+     *
+     * @return the mysql instance.
+     */
+    @NotNull
     public MySQL getMysql() { return mysql; }
 
+    /**
+     * Get the {@link ConfigManager} instance.
+     *
+     * @return the config manager
+     */
+    @NotNull
     public ConfigManager getConfigManager() { return configManager; }
 
+    /**
+     * Get the {@link MySQLManager} instance.
+     *
+     * @return the mysql manager
+     */
+    @NotNull
     public MySQLManager getMySQLManager() { return mySQLManager; }
 
     public String getAdvancement_id() { return advancement_id; }
 
     public void setAdvancement_id(String advancement_id) { this.advancement_id = advancement_id; }
 
+    /**
+     * Get the {@link TeamManager} instance.
+     *
+     * @return the team manager
+     */
+    @NotNull
     public TeamManager getTeamManager() { return teamManager; }
 
+    /**
+     * Get the {@link ActionbarManager} instance.
+     *
+     * @return the action bar manager
+     */
+    @NotNull
     public ActionbarManager getActionbarManager() { return actionbarManager; }
 
     public int getMinutesUntilEnd() { return minutesUntilEnd; }
@@ -164,6 +228,12 @@ public final class AdvancementHunt extends JavaPlugin {
 
     public void setCompass(boolean compass) { this.compass = compass; }
 
+    /**
+     * Get the {@link Location} location.
+     *
+     * @return the compass's location.
+     */
+    @NotNull
     public Location getCompassLoc() { return compassLoc; }
 
     public void setCompassLoc(Location compassLoc) { this.compassLoc = compassLoc; }

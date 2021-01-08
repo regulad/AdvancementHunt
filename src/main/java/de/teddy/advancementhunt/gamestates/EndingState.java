@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import de.teddy.advancementhunt.AdvancementHunt;
 import de.teddy.advancementhunt.timer.EndingTimer;
+import de.teddy.advancementhunt.util.FightUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -12,49 +13,57 @@ import java.sql.PreparedStatement;
 public class EndingState extends GameState {
 
     EndingTimer endingTimer = new EndingTimer();
+    private AdvancementHunt plugin;
 
     @Override
     public void start() {
         endingTimer.start();
-        Bukkit.getScheduler().scheduleSyncDelayedTask(AdvancementHunt.getInstance(), () -> {
+        plugin = AdvancementHunt.getInstance();
+
+        plugin.getActionbarManager().setRemainingTime(null);
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
             for(Player player : Bukkit.getOnlinePlayers()) {
-                AdvancementHunt.getInstance().getUtils().getLocationUtil().teleport(player, "LobbySpawn");
+                plugin.getUtils().getLocationUtil().teleport(player, "LobbySpawn");
                 player.getInventory().clear();
                 player.setHealth(20);
                 player.setFoodLevel(20);
-                AdvancementHunt.getInstance().getActionbarManager().setRemainingTime(null);
-                AdvancementHunt.getInstance().getActionbarManager().stopTimeRemaining();
             }
         }, 1L);
+
+        plugin.getActionbarManager().stopTimeRemaining();
     }
 
     @Override
     public void stop() {
         endingTimer.cancel();
+
+        FightUtil fightUtil = plugin.getUtils().getFightUtil();
+
         for(Player player : Bukkit.getOnlinePlayers()) {
 
             // First Save Player Data to db if use db is true
-            if(AdvancementHunt.getInstance().getConfigManager().getConfig().getBoolean("Game.MySQL.Use_db")) {
+            if(plugin.getConfigManager().getConfig().getBoolean("Game.MySQL.Use_db")) {
                 try {
                     String sql = "INSERT INTO player_stat VALUES(?,?,?,?,?,?)";
-                    PreparedStatement preparedStatement = AdvancementHunt.getInstance().getMysql().getConnection().prepareStatement(sql);
+                    PreparedStatement preparedStatement = plugin.getMysql().getConnection().prepareStatement(sql);
                     preparedStatement.setString(1, player.getUniqueId().toString());
                     preparedStatement.setString(2, player.getName());
-                    preparedStatement.setInt(3, AdvancementHunt.getInstance().getUtils().getFightUtil().getKills().get(player));
-                    preparedStatement.setInt(4, AdvancementHunt.getInstance().getUtils().getFightUtil().getDeaths().get(player));
-                    preparedStatement.setInt(5, AdvancementHunt.getInstance().getUtils().getFightUtil().getLosses().get(player));
-                    preparedStatement.setInt(6, AdvancementHunt.getInstance().getUtils().getFightUtil().getWins().get(player));
+                    preparedStatement.setInt(3, fightUtil.getKills().get(player));
+                    preparedStatement.setInt(4, fightUtil.getDeaths().get(player));
+                    preparedStatement.setInt(5, fightUtil.getLosses().get(player));
+                    preparedStatement.setInt(6, fightUtil.getWins().get(player));
                     preparedStatement.execute();
                 } catch (Exception e) {
-                    AdvancementHunt.getInstance().getLogger().info("Unable to Save Player stat to db");
+                    plugin.getLogger().info("Unable to Save Player stat to db");
                 }
             }
 
             // Instad of kicking players i am going to sent them to hub server
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Connect");
-            out.writeUTF(AdvancementHunt.getInstance().getConfigManager().getMessage("Game.Extra.Hub_Server"));
-            player.sendPluginMessage(AdvancementHunt.getInstance(),"BungeeCord",out.toByteArray());
+            out.writeUTF(plugin.getConfigManager().getMessage("Game.Extra.Hub_Server"));
+            player.sendPluginMessage(plugin,"BungeeCord",out.toByteArray());
 
             // player.kickPlayer(AdvancementHunt.getInstance().getConfigManager().getMessage("Game.Messages.GameIsOver"));
             player.getActivePotionEffects().clear();
@@ -68,12 +77,15 @@ public class EndingState extends GameState {
         //Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv confirm");
 
         // New Method
-        AdvancementHunt.getInstance().getMultiverseCore().deleteWorld(AdvancementHunt.getInstance().getWorldName());
-        AdvancementHunt.getInstance().getMultiverseCore().deleteWorld(AdvancementHunt.getInstance().getWorldName() + "_the_end");
-        AdvancementHunt.getInstance().getMultiverseCore().deleteWorld(AdvancementHunt.getInstance().getWorldName() + "_nether");
+        String worldName = plugin.getWorldName();
 
-        AdvancementHunt.getInstance().getTeamManager().clear();
-        AdvancementHunt.getInstance().getUtils().getFightUtil().clear();
+        plugin.getMultiverseCore().deleteWorld(worldName);
+        plugin.getMultiverseCore().deleteWorld(worldName + "_the_end");
+        plugin.getMultiverseCore().deleteWorld(worldName + "_nether");
+
+        plugin.getTeamManager().clear();
+        plugin.getUtils().getFightUtil().clear();
+
+        plugin = null;
     }
-
 }

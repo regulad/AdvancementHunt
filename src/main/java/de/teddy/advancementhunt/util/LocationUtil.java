@@ -33,9 +33,9 @@ public class LocationUtil {
 	
 	public void teleport(Player player, String name) {
 		World world = Bukkit.getWorld(locations.getString(root + name + ".World"));
-		double x = (double) locations.getDouble(root + name + ".X");
-		double y = (double) locations.getDouble(root + name + ".Y");
-		double z = (double) locations.getDouble(root + name + ".Z");
+		double x = locations.getDouble(root + name + ".X");
+		double y = locations.getDouble(root + name + ".Y");
+		double z = locations.getDouble(root + name + ".Z");
 		float yaw = (float) locations.getDouble(root + name + ".Yaw");
 		float pitch = (float) locations.getDouble(root + name + ".Pitch");
 		
@@ -43,5 +43,4 @@ public class LocationUtil {
 		
 		player.teleport(location);
 	}
-	
 }

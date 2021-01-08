@@ -12,7 +12,7 @@ public class FightUtil {
     private final HashMap<Player, Integer> losses = new HashMap<>();
 
     public void addKill(Player player, int amount) {
-        if(!kills.containsKey(player)) {
+        if (!kills.containsKey(player)) {
             kills.put(player, amount);
         } else {
             kills.put(player, kills.get(player) + amount);
@@ -20,7 +20,7 @@ public class FightUtil {
     }
 
     public void addDeath(Player player, int amount) {
-        if(!deaths.containsKey(player)) {
+        if (!deaths.containsKey(player)) {
             deaths.put(player, amount);
         } else {
             deaths.put(player, deaths.get(player) + amount);
@@ -28,7 +28,7 @@ public class FightUtil {
     }
 
     public void addWin(Player player, int amount) {
-        if(!wins.containsKey(player)) {
+        if (!wins.containsKey(player)) {
             wins.put(player, amount);
         } else {
             wins.put(player, wins.get(player) + amount);
@@ -36,7 +36,7 @@ public class FightUtil {
     }
 
     public void addLoose(Player player, int amount) {
-        if(!losses.containsKey(player)) {
+        if (!losses.containsKey(player)) {
             losses.put(player, amount);
         } else {
             losses.put(player, losses.get(player) + amount);

@@ -16,9 +16,15 @@ public class ActionbarManager {
     private BukkitTask task;
     private String remainingTime;
 
+    private final AdvancementHunt plugin;
+
+    public ActionbarManager(AdvancementHunt plugin) {
+        this.plugin = plugin;
+    }
+
     public void startTimeRemaining(int minutes) {
-        Player hunter1 = AdvancementHunt.getInstance().getTeamManager().getPlayers(Team.HUNTER).get(0);
-        Player hunter2 = AdvancementHunt.getInstance().getTeamManager().getPlayers(Team.HUNTER).get(1);
+        Player hunter1 = plugin.getTeamManager().getPlayers(Team.HUNTER).get(0);
+        Player hunter2 = plugin.getTeamManager().getPlayers(Team.HUNTER).get(1);
 
         task = new BukkitRunnable() {
             int count = minutes * 60;
@@ -29,27 +35,27 @@ public class ActionbarManager {
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     // I think this is what you mean about placeholder....
-                    AdvancementHunt.getInstance().getMessageManager().sendMessage(player, MessageType.TIME_LEFT);
+                    plugin.getMessageManager().sendMessage(player, MessageType.TIME_LEFT);
                     //player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(AdvancementHunt.getInstance().getConfigManager().getMessageWithReplace(
                     //  "Game.Messages.TimeLeft", "%minutes%", PlaceholderAPI.setPlaceholders(player, "%advancement_time_remaining%"))));
                 }
 
-                if (AdvancementHunt.getInstance().isCompass()) {
-                    AdvancementHunt.getInstance().setCompassLoc(AdvancementHunt.getInstance().getTeamManager().getPlayers(Team.PLAYER).get(0).getLocation());
+                if (plugin.isCompass()) {
+                    plugin.setCompassLoc(plugin.getTeamManager().getPlayers(Team.PLAYER).get(0).getLocation());
 
-                    hunter1.setCompassTarget(AdvancementHunt.getInstance().getCompassLoc());
-                    hunter2.setCompassTarget(AdvancementHunt.getInstance().getCompassLoc());
+                    hunter1.setCompassTarget(plugin.getCompassLoc());
+                    hunter2.setCompassTarget(plugin.getCompassLoc());
                 }
 
                 if (count == 0) {
-                    AdvancementHunt.getInstance().getGameStateManager().setGameState(GameState.ENDING_STATE);
+                    plugin.getGameStateManager().setGameState(GameState.ENDING_STATE);
                     cancel();
                 }
 
                 count--;
             }
 
-        }.runTaskTimerAsynchronously(AdvancementHunt.getInstance(), 0, 20);
+        }.runTaskTimerAsynchronously(plugin, 0, 20);
     }
 
     public void sendActionbar(Player player, String message) {
