@@ -2,8 +2,6 @@ package de.teddy.advancementhunt.placeholder;
 
 import de.teddy.advancementhunt.AdvancementHunt;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,65 +33,60 @@ public class SpigotExpansion extends PlaceholderExpansion {
 
     @Override
     public String onPlaceholderRequest(Player player, @NotNull String params) {
-        if(player == null) {
+        if (player == null) {
             return "";
         }
-        if(params.equals("time_remaining")) {
+        if (params.equals("time_remaining")) {
             return AdvancementHunt.getInstance().getActionbarManager().getRemainingTime();
         }
-        if(params.equals("wins")) {
-            if(AdvancementHunt.getInstance().getUtils().getFightUtil().getWins().containsKey(player)) {
+        if (params.equals("wins")) {
+            if (AdvancementHunt.getInstance().getUtils().getFightUtil().getWins().containsKey(player)) {
                 return String.valueOf(AdvancementHunt.getInstance().getUtils().getFightUtil().getWins().get(player));
             } else {
                 return "0";
             }
         }
-        if(params.equals("losses")) {
-            if(AdvancementHunt.getInstance().getUtils().getFightUtil().getLosses().containsKey(player)) {
+        if (params.equals("losses")) {
+            if (AdvancementHunt.getInstance().getUtils().getFightUtil().getLosses().containsKey(player)) {
                 return String.valueOf(AdvancementHunt.getInstance().getUtils().getFightUtil().getLosses().get(player));
             } else {
                 return "0";
             }
         }
 
-        if(params.equals("kills"))
-        {
-            if(AdvancementHunt.getInstance().getUtils().getFightUtil().getKills().containsKey(player))
-            {
+        if (params.equals("kills")) {
+            if (AdvancementHunt.getInstance().getUtils().getFightUtil().getKills().containsKey(player)) {
                 return AdvancementHunt.getInstance().getUtils().getFightUtil().getKills().get(player) + "";
             }
 
             return 0 + "";
         }
 
-        if(params.equals("deaths"))
-        {
-            if(AdvancementHunt.getInstance().getUtils().getFightUtil().getDeaths().containsKey(player))
-            {
+        if (params.equals("deaths")) {
+            if (AdvancementHunt.getInstance().getUtils().getFightUtil().getDeaths().containsKey(player)) {
                 return AdvancementHunt.getInstance().getUtils().getFightUtil().getDeaths().get(player) + "";
             }
 
             return 0 + "";
         }
 
-        if(params.equals("id")) {
-            if(AdvancementHunt.getInstance().getAdvancement_id() != null) {
+        if (params.equals("id")) {
+            if (AdvancementHunt.getInstance().getAdvancement_id() != null) {
                 return AdvancementHunt.getInstance().getAdvancement_id();
             }
         }
 
-        if(params.equals("name"))
-        {
-            if(AdvancementHunt.getInstance().getAdvancement_id() != null) {
+        if (params.equals("name")) {
+            if (AdvancementHunt.getInstance().getAdvancement_id() != null) {
                 String[] advancement_name = AdvancementHunt.getInstance().getAdvancement_id().split("/");
                 return advancement_name[1];
             }
         }
 
-        if(params.equals("player"))
-        {
+        if (params.equals("player")) {
             return player.getName();
         }
+
         return null;
     }
 }

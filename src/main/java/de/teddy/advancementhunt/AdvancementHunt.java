@@ -27,14 +27,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class AdvancementHunt extends JavaPlugin {
 
-    private String prefix = "§cAdvancementHunt §8- §r";
     private String worldName = null;
     private int minutesUntilEnd;
     private String advancement_id = null;
     private int distance;
     private boolean glow;
     private boolean compass;
-    private Messages messages;
 
     private Location compassLoc;
 
@@ -42,13 +40,13 @@ public final class AdvancementHunt extends JavaPlugin {
     private static AdvancementHunt instance;
 
     private MySQL mysql;
-    private Utils utils = new Utils();
+    private final Utils utils = new Utils();
     private GameStateManager gameStateManager = new GameStateManager();
-    private PermissionManager permissionManager = new PermissionManager();
+    private final PermissionManager permissionManager = new PermissionManager();
     private ConfigManager configManager;
     private MySQLManager mySQLManager;
-    private TeamManager teamManager = new TeamManager();
-    private ActionbarManager actionbarManager = new ActionbarManager();
+    private final TeamManager teamManager = new TeamManager();
+    private final ActionbarManager actionbarManager = new ActionbarManager();
     private MessageManager messageManager;
     private AdvancementSeed advancementSeed;
 
@@ -57,7 +55,7 @@ public final class AdvancementHunt extends JavaPlugin {
         instance = this;
         configManager = new ConfigManager();
         mySQLManager = new MySQLManager(configManager);
-        messages = new Messages();
+        Messages messages = new Messages();
 
         worldName = getConfigManager().getMessage("Game.Extra.WorldName");
 
@@ -103,7 +101,7 @@ public final class AdvancementHunt extends JavaPlugin {
 
 
     public MultiverseCore getMultiverseCore() {
-        /**
+        /*
          * Hmm its good to remove the Exception
          */
         Plugin plugin = getServer().getPluginManager().getPlugin("Multiverse-Core");
@@ -130,7 +128,8 @@ public final class AdvancementHunt extends JavaPlugin {
 
     public GameStateManager getGameStateManager() { return gameStateManager; }
 
-    public String getPrefix() { return prefix; }
+    public String getPrefix() {
+        return "§cAdvancementHunt §8- §r"; }
 
     public String getWorldName() { return worldName; }
 
