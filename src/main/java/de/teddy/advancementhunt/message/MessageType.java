@@ -12,5 +12,5 @@ public enum MessageType {
     ISFLEEING_PLAYER,
     STOP_GAME,
     START_GAME,
-    CREATING_WORLD;
+    CREATING_WORLD
 }

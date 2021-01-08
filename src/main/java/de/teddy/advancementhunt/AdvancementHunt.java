@@ -36,7 +36,6 @@ public final class AdvancementHunt extends JavaPlugin {
 
     private Location compassLoc;
 
-
     private static AdvancementHunt instance;
 
     private MySQL mysql;

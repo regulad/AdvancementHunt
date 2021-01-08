@@ -9,12 +9,12 @@ import java.io.IOException;
 
 public class ConfigManager {
 
-    private File data_folder = new File(AdvancementHunt.getInstance().getDataFolder() + "");
-    private File file = new File(data_folder,"config.yml");
-    private YamlConfiguration config;
+    private final File data_folder = new File(AdvancementHunt.getInstance().getDataFolder() + "");
+    private final File file = new File(data_folder, "config.yml");
+    private final YamlConfiguration config;
 
     public ConfigManager() {
-        if(file.exists()) {
+        if (file.exists()) {
             config = YamlConfiguration.loadConfiguration(file);
             return;
         }
@@ -45,8 +45,8 @@ public class ConfigManager {
         getConfig().set("Game.MySQL.User", "root");
         getConfig().set("Game.MySQL.Password", "'passwd'");
         getConfig().set("Game.MySQL.table_prefix", "ah_");
-        getConfig().set("Game.MySQL.Use_db",false);
-        getConfig().set("Game.Extra.Hub_Server","Hub");
+        getConfig().set("Game.MySQL.Use_db", false);
+        getConfig().set("Game.Extra.Hub_Server", "Hub");
         getConfig().set("Game.Extra.WorldName", "Manhunt");
 
         try {
@@ -59,17 +59,18 @@ public class ConfigManager {
     public String getMessageWithReplace(String configString, String replaceString, String replaceWith) {
         String message = getConfig().getString(configString);
         message = message.replace(replaceString, replaceWith);
-        message = ChatColor.translateAlternateColorCodes('&', message);
-        return message;
+        return ChatColor.translateAlternateColorCodes('&', message);
     }
 
     public String getMessage(String configString) {
-        String message = getConfig().getString(configString);
-        message = ChatColor.translateAlternateColorCodes('&', message);
-        return message;
+        return ChatColor.translateAlternateColorCodes('&', getConfig().getString(configString));
     }
 
-    public File getFile() { return file; }
+    public File getFile() {
+        return file;
+    }
 
-    public YamlConfiguration getConfig() { return config; }
+    public YamlConfiguration getConfig() {
+        return config;
+    }
 }

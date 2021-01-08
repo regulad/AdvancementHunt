@@ -6,7 +6,7 @@ import de.teddy.advancementhunt.gamestates.GameState;
 import de.teddy.advancementhunt.gamestates.IngameState;
 import de.teddy.advancementhunt.gamestates.LobbyState;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,7 +21,7 @@ public class PlayerConnectionListener implements Listener {
     @EventHandler
     public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event)
     {
-        /**
+        /*
          * Disallow player join incase game already started
          */
         if(AdvancementHunt.getInstance().getGameStateManager().getCurrentGameState() instanceof EndingState)
@@ -31,18 +31,15 @@ public class PlayerConnectionListener implements Listener {
     }
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        /**
+        /*
          * Added delay.
          * for some reason Player object was null so lets try adding some delay.
          */
-        Bukkit.getScheduler().runTaskLater(AdvancementHunt.getInstance(), new Runnable() {
-            @Override
-            public void run() {
-                Player player = event.getPlayer();
+        Bukkit.getScheduler().runTaskLater(AdvancementHunt.getInstance(), () -> {
+            Player player = event.getPlayer();
 
-                if(!(AdvancementHunt.getInstance().getGameStateManager().getCurrentGameState() instanceof EndingState)) {
-                    AdvancementHunt.getInstance().getUtils().getLocationUtil().teleport(player, "LobbySpawn");
-                }
+            if(!(AdvancementHunt.getInstance().getGameStateManager().getCurrentGameState() instanceof EndingState)) {
+                AdvancementHunt.getInstance().getUtils().getLocationUtil().teleport(player, "LobbySpawn");
             }
         },100);
     }

@@ -6,7 +6,7 @@ import de.teddy.advancementhunt.gamestates.GameState;
 import de.teddy.advancementhunt.message.MessageType;
 import de.teddy.advancementhunt.teams.Team;
 import org.bukkit.*;
-import org.bukkit.entity.Entity;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,16 +20,11 @@ public class PlayerDeathListener implements Listener {
     public void onDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
 
-        if(!(player instanceof Player))
-        {
-            return;
-        }
-
-        if(event.getEntity().getKiller() != null) {
-            // event.setDeathMessage("§c" + player.getDisplayName() + " " + AdvancementHunt.getInstance().getConfigManager().getMessageWithReplace("Game.Messages.KilledBy", "%player%", event.getEntity().getKiller().getDisplayName()));
-        } else {
-            // event.setDeathMessage(AdvancementHunt.getInstance().getConfigManager().getMessageWithReplace("Game.Messages.Dead", "%player%", player.getDisplayName()));
-        }
+//        if(event.getEntity().getKiller() != null) {
+//            // event.setDeathMessage("§c" + player.getDisplayName() + " " + AdvancementHunt.getInstance().getConfigManager().getMessageWithReplace("Game.Messages.KilledBy", "%player%", event.getEntity().getKiller().getDisplayName()));
+//        } else {
+//            // event.setDeathMessage(AdvancementHunt.getInstance().getConfigManager().getMessageWithReplace("Game.Messages.Dead", "%player%", player.getDisplayName()));
+//        }
 
         if(AdvancementHunt.getInstance().getTeamManager().getPlayers(Team.PLAYER).contains(player)) {
             World w = Bukkit.getServer().getWorld(AdvancementHunt.getInstance().getWorldName());

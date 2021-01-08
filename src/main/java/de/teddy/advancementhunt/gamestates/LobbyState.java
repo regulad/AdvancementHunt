@@ -9,7 +9,7 @@ public class LobbyState extends GameState {
 
 	public static final int MIN_PLAYERS = 3;
 
-	private LobbyTimer lobbyTimer = new LobbyTimer();
+	private final LobbyTimer lobbyTimer = new LobbyTimer();
 	
 	@Override
 	public void start() {
