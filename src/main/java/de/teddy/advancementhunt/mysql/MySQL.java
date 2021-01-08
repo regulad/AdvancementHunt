@@ -3,19 +3,18 @@ package de.teddy.advancementhunt.mysql;
 import de.teddy.advancementhunt.AdvancementHunt;
 
 import java.sql.*;
-import java.util.ArrayList;
 
 public class MySQL {
 
     private String host = "";
-    private int port;
+    private final int port;
     private String database = "";
     private String user = "";
     private String password = "";
 
     private Connection connection;
 
-    public MySQL(String host, int port, String database,String user, String password) {
+    public MySQL(String host, int port, String database, String user, String password) {
         this.host = host;
         this.port = port;
         this.database = database;
@@ -35,8 +34,7 @@ public class MySQL {
         }
     }
 
-    private void setUpTable() throws Exception
-    {
+    private void setUpTable() throws Exception {
         AdvancementHunt.getInstance().getLogger().info("Setting up mysql tables....");
         Statement statement = connection.createStatement();
 
@@ -51,15 +49,16 @@ public class MySQL {
         statement.execute(sql);
 
         String create_storage = "CREATE TABLE IF NOT EXISTS " + AdvancementHunt.getInstance().getConfigManager().getConfig().getString("Game.MySQL.table_prefix") + "advancements"
-                           + "  (advancement_id VARCHAR(255));";
+                + "  (advancement_id VARCHAR(255));";
         statement.execute(create_storage);
 
         String create_seed_storage = "CREATE TABLE IF NOT EXISTS " + AdvancementHunt.getInstance().getConfigManager().getConfig().getString("Game.MySQL.table_prefix") + "seeds"
                 + "  (world_seeds LONG);";
         statement.execute(create_seed_storage);
     }
+
     public void close() {
-        if(connection != null) {
+        if (connection != null) {
             try {
                 connection.close();
                 System.out.println("[AdvancementHunt] MySQL DB disconnected");
@@ -80,10 +79,10 @@ public class MySQL {
         }
     }
 
-    public Connection getConnection()
-    {
+    public Connection getConnection() {
         return connection;
     }
+
     public ResultSet query(String query) {
         ResultSet resultSet = null;
 

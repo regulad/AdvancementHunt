@@ -2,28 +2,23 @@ package de.teddy.advancementhunt.teams;
 
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TeamManager {
 
-    private HashMap<Player, Team> teams = new HashMap<Player, Team>();
+    private final HashMap<Player, Team> teams = new HashMap<>();
 
     public void setInTeam(Player player, Team team) {
         teams.put(player, team);
     }
 
     public Boolean isTeamEmpty(Team team) {
-        if(this.teams.containsValue(team)) {
-            return false;
-        } else {
-            return true;
-        }
+        return !this.teams.containsValue(team);
     }
 
     public ArrayList<Player> getPlayers(Team team) {
-        ArrayList<Player> list = new ArrayList<Player>();
+        ArrayList<Player> list = new ArrayList<>();
         for(Player key : teams.keySet()) {
             if(teams.get(key).equals(team)) {
                 list.add(key);
@@ -32,7 +27,7 @@ public class TeamManager {
         return list;
     }
 
-    /*public Team getTeam(Player player) {
+    /** public Team getTeam(Player player) {
         for(Team key : teams.keySet()) {
             if(teams.get(key).equals(player)) {
                 return key;

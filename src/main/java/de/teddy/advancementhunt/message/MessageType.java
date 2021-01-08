@@ -11,6 +11,7 @@ public enum MessageType {
     NOT_ENOUGH_PLAYERS,
     ISFLEEING_PLAYER,
     STOP_GAME,
+    IN_PROGRESS_GAME,
     START_GAME,
-    CREATING_WORLD;
+    CREATING_WORLD
 }
