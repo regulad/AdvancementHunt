@@ -11,8 +11,8 @@ import org.bukkit.entity.Player;
 
 public class LocationUtil {
 
-    private File file = new File("plugins//AdvancementHunt//locations.yml");
-    private YamlConfiguration locations = YamlConfiguration.loadConfiguration(file);
+    private final File file = new File("plugins//AdvancementHunt//locations.yml");
+    private final YamlConfiguration locations = YamlConfiguration.loadConfiguration(file);
 	
 	String root = "AdvancementHunt.";
     

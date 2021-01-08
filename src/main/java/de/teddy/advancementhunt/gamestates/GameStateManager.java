@@ -2,7 +2,7 @@ package de.teddy.advancementhunt.gamestates;
 
 public class GameStateManager {
 
-	private GameState[] gameStates = new GameState[3];
+	private final GameState[] gameStates = new GameState[3];
 	private GameState currentGameState;
 	
 	public GameStateManager() {

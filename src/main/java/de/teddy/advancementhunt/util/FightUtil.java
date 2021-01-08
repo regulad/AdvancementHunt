@@ -6,10 +6,10 @@ import java.util.HashMap;
 
 public class FightUtil {
 
-    private HashMap<Player, Integer> kills = new HashMap<Player, Integer>();
-    private HashMap<Player, Integer> deaths = new HashMap<Player, Integer>();
-    private HashMap<Player, Integer> wins = new HashMap<Player, Integer>();
-    private HashMap<Player, Integer> losses = new HashMap<Player, Integer>();
+    private final HashMap<Player, Integer> kills = new HashMap<>();
+    private final HashMap<Player, Integer> deaths = new HashMap<>();
+    private final HashMap<Player, Integer> wins = new HashMap<>();
+    private final HashMap<Player, Integer> losses = new HashMap<>();
 
     public void addKill(Player player, int amount) {
         if(!kills.containsKey(player)) {

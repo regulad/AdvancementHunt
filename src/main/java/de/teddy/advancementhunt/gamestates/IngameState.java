@@ -24,6 +24,7 @@ public class IngameState extends GameState {
         } else {
 			this.fleeingPlayer = player;
         }
+
 		String advancement_id = AdvancementHunt.getInstance().getAdvancement_id();
 
         AdvancementHunt.getInstance().getMessageManager().sendMessage(fleeingPlayer, MessageType.ISFLEEING_PLAYER);
@@ -65,6 +66,7 @@ public class IngameState extends GameState {
         if (AdvancementHunt.getInstance().isGlow()) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, Integer.MAX_VALUE, 1));
         }
+
         if (AdvancementHunt.getInstance().isCompass()) {
             hunter1.getInventory().addItem(new ItemStack(Material.COMPASS));
             hunter2.getInventory().addItem(new ItemStack(Material.COMPASS));

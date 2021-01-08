@@ -16,17 +16,14 @@ public class EndingState extends GameState {
     @Override
     public void start() {
         endingTimer.start();
-        Bukkit.getScheduler().scheduleSyncDelayedTask(AdvancementHunt.getInstance(), new Runnable() {
-            @Override
-            public void run() {
-                for(Player player : Bukkit.getOnlinePlayers()) {
-                    AdvancementHunt.getInstance().getUtils().getLocationUtil().teleport(player, "LobbySpawn");
-                    player.getInventory().clear();
-                    player.setHealth(20);
-                    player.setFoodLevel(20);
-                    AdvancementHunt.getInstance().getActionbarManager().setRemainingTime(null);
-                    AdvancementHunt.getInstance().getActionbarManager().stopTimeRemaining();
-                }
+        Bukkit.getScheduler().scheduleSyncDelayedTask(AdvancementHunt.getInstance(), () -> {
+            for(Player player : Bukkit.getOnlinePlayers()) {
+                AdvancementHunt.getInstance().getUtils().getLocationUtil().teleport(player, "LobbySpawn");
+                player.getInventory().clear();
+                player.setHealth(20);
+                player.setFoodLevel(20);
+                AdvancementHunt.getInstance().getActionbarManager().setRemainingTime(null);
+                AdvancementHunt.getInstance().getActionbarManager().stopTimeRemaining();
             }
         }, 1L);
     }
@@ -64,7 +61,7 @@ public class EndingState extends GameState {
             player.getInventory().clear();
         }
 
-        /**
+        /*
          * Old shitty code for deleting world
          */
         //Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv delete " + AdvancementHunt.getInstance().getWorldName());
