@@ -1,8 +1,8 @@
 package de.teddy.advancementhunt.message;
 
 public class MessageFormat {
-    private String regex;
-    private String replace;
+    private final String regex;
+    private final String replace;
 
     public MessageFormat(String regex,String replace)
     {

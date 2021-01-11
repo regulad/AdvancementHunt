@@ -7,9 +7,9 @@ public enum Permission {
 	SET(AdvancementHunt.getInstance().getConfigManager().getMessage("Game.Permissions.SetLocation")),
 	START(AdvancementHunt.getInstance().getConfigManager().getMessage("Game.Permissions.StartGame"));
 	
-	private String permission;
+	private final String permission;
 	
-	private Permission(String permission) {
+	Permission(String permission) {
 		this.permission = permission;
 	}
 	

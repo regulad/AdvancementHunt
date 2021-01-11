@@ -2,6 +2,7 @@ package de.teddy.advancementhunt.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -11,9 +12,10 @@ import org.bukkit.entity.Player;
 
 public class LocationUtil {
 
-    private File file = new File("plugins//AdvancementHunt//locations.yml");
-    private YamlConfiguration locations = YamlConfiguration.loadConfiguration(file);
-	
+    private final File file = new File("plugins//AdvancementHunt//locations.yml");
+    private final YamlConfiguration locations = YamlConfiguration.loadConfiguration(file);
+	private final HashMap<String, Location> locationCacheMap = new HashMap<>();
+
 	String root = "AdvancementHunt.";
     
 	public void setLobbySpawn(Player player) {
@@ -30,18 +32,27 @@ public class LocationUtil {
 			e.printStackTrace();
 		}
 	}
-	
+
+	/**
+	 *
+	 * @param player player getting teleported
+	 * @param name unknown documentation.
+	 *
+	 * Checks if the location of name exists in memory, before attempting to grab the configuration increasing load and using more memory.
+	 */
 	public void teleport(Player player, String name) {
-		World world = Bukkit.getWorld(locations.getString(root + name + ".World"));
-		double x = (double) locations.getDouble(root + name + ".X");
-		double y = (double) locations.getDouble(root + name + ".Y");
-		double z = (double) locations.getDouble(root + name + ".Z");
-		float yaw = (float) locations.getDouble(root + name + ".Yaw");
-		float pitch = (float) locations.getDouble(root + name + ".Pitch");
+
+		if (!locationCacheMap.containsKey(name)) {
+			World world = Bukkit.getWorld(locations.getString(root + name + ".World"));
+			double x = locations.getDouble(root + name + ".X");
+			double y = locations.getDouble(root + name + ".Y");
+			double z = locations.getDouble(root + name + ".Z");
+			float yaw = (float) locations.getDouble(root + name + ".Yaw");
+			float pitch = (float) locations.getDouble(root + name + ".Pitch");
+
+			locationCacheMap.put(name, new Location(world, x, y, z, yaw, pitch));
+		}
 		
-		Location location = new Location(world, x, y, z, yaw, pitch);
-		
-		player.teleport(location);
+		player.teleport(locationCacheMap.get(name));
 	}
-	
 }
