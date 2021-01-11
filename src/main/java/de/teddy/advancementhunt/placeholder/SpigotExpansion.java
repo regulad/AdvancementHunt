@@ -89,11 +89,5 @@ public class SpigotExpansion extends PlaceholderExpansion {
                 return advancement_name[1];
             }
         }
-
-        if(params.equals("player"))
-        {
-            return player.getName();
-        }
-        return null;
     }
 }

@@ -24,16 +24,16 @@ Messages:
     message: "Time remaining: %ah_time_remaining%"
   THE_FLEEING_PLAYER:
     send_type: "TITLE"
-    message: "The Fleeing Player: %ah_player%"
+    message: "The Fleeing Player: %player%"
   the_hunter:
     send_type: "ACTION_BAR"
-    message: "Hunter: %ah_player%"
+    message: "Hunter: %player%"
   won:
     send_type: "TITLE"
-    message: "%ah_player% won!"
+    message: "%player% won!"
   not_enough_players:
     send_type: "ACTION_BAR"
-    message: "There are &a%count%&r&c players missing until the start!"
+    message: "There are %count% players missing until the start!"
   is_fleeing_player:
     send_type: "TITLE"
     message: "The hunters are approaching! Get the Advancement %ah_name%!"
