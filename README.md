@@ -24,8 +24,8 @@
 
 #### You can change these if you want
 
-1. **StartGame**: advancementhunt.command.start
-1. **SetLocation**: advancementhunt.command.set
+1. **StartGame**: `advancementhunt.command.start`
+1. **SetLocation**: `advancementhunt.command.set`
 
 ### MySQL
 
