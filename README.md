@@ -37,9 +37,9 @@
 
 ### Identifier is `ah`
 
-* `%ah_time_remaining%` - The remaining time. (HH:MM:ss)
-* `%ah_wins%` - The total amount of wins a player has. (Pulled from DB, not cached!)
-* `%ah_losses%` - The total amount of losses a player has. (Pulled from DB, not cached!)
-* `%ah_kills%` - Shows kills of the player
-* `%ah_deaths%` - shows death's of the player
-* `%ah_id%` - The advancement id. (Only the namespaced ID)
+* `time_remaining` - The remaining time. (HH:MM:ss)
+* `wins` - The total amount of wins a player has. (Pulled from DB, not cached!)
+* `losses` - The total amount of losses a player has. (Pulled from DB, not cached!)
+* `kills` - Shows kills of the player
+* `deaths` - shows death's of the player
+* `id` - The advancement id. (Only the namespaced ID)
