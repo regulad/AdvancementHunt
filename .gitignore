@@ -24,8 +24,6 @@ hs_err_pid*
 
 # Build
 target/
-.classpath
 
 # IDE
-.vscode/
-.settings/
+.idea/

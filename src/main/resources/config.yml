@@ -12,7 +12,7 @@ Game:
     Database: advancementhunt
     Options: ?autoReconnect=true
     User: root
-    Password: passwd'
+    Password: passwd
     table_prefix: ah_
     Use_db: false
   Extra:

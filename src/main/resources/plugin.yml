@@ -1,9 +1,9 @@
 name: ${project.name}
 version: ${project.version}
-description: AdvancementHunt/Manhunt Plugin
+description: AdvancementHunt is a minigame plugin.
 author: regulad
 
-main: com.regulad.advancementhunt.AdvancementHunt
+main: xyz.regulad.advancementhunt.AdvancementHunt
 softdepend: [Multiverse-NetherPortals]
 depend: [PlaceholderAPI, Multiverse-Core]
 api-version: 1.15
