@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public class AdvancementName { // Copied almost verbatim from https://github.com/DiscordSRV/DiscordSRV/blob/master/src/main/java/github/scarsz/discordsrv/listeners/PlayerAdvancementDoneListener.java
+public class AdvancementUtil { // Copied almost verbatim from https://github.com/DiscordSRV/DiscordSRV/blob/master/src/main/java/github/scarsz/discordsrv/listeners/PlayerAdvancementDoneListener.java
     public static boolean isBlank(CharSequence cs) { // Copied from org.apache.commons.lang3.StringUtils
         int strLen = cs == null ? 0 : cs.length();
         if (strLen != 0) {

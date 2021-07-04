@@ -1,10 +1,11 @@
-package xyz.regulad.advancementhunt.gamestate;
+package xyz.regulad.advancementhunt.game.states;
 
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import xyz.regulad.advancementhunt.AdvancementHunt;
+import xyz.regulad.advancementhunt.game.GameEndReason;
+import xyz.regulad.advancementhunt.util.PlayerUtil;
 
 public class IdleState implements GameState {
     private final AdvancementHunt plugin;
@@ -19,21 +20,17 @@ public class IdleState implements GameState {
     public void start() {
         Location startingLocation = this.plugin.getServer().getWorlds().get(0).getSpawnLocation();
         for (Player player : this.plugin.getServer().getOnlinePlayers()) {
+            PlayerUtil.resetPlayer(player, GameMode.ADVENTURE, true);
             player.teleport(startingLocation);
-            player.setInvulnerable(true);
-            player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
-            player.setFoodLevel(20);
-            player.setSaturation(5);
-            player.setExhaustion(0);
-            player.setGameMode(GameMode.ADVENTURE);
         }
     }
 
     @Override
     public void end() {
-        for (Player player : this.plugin.getServer().getOnlinePlayers()) {
-            player.setInvulnerable(false);
-            player.setGameMode(GameMode.SURVIVAL);
-        }
+        PlayerUtil.resetAllPlayers(GameMode.SURVIVAL, false);
+    }
+
+    public GameEndReason getGameEndReason() {
+        return this.reason;
     }
 }

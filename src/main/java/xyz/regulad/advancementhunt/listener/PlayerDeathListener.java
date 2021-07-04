@@ -6,8 +6,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import xyz.regulad.advancementhunt.AdvancementHunt;
 import xyz.regulad.advancementhunt.database.PlayerStats;
 import xyz.regulad.advancementhunt.exceptions.GameNotStartedException;
-import xyz.regulad.advancementhunt.gamestate.GameEndReason;
-import xyz.regulad.advancementhunt.gamestate.PlayingState;
+import xyz.regulad.advancementhunt.game.GameEndReason;
+import xyz.regulad.advancementhunt.game.states.PlayingState;
 
 public class PlayerDeathListener implements Listener {
 

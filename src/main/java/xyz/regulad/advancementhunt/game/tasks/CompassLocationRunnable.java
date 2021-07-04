@@ -1,9 +1,9 @@
-package xyz.regulad.advancementhunt.compass;
+package xyz.regulad.advancementhunt.game.tasks;
 
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import xyz.regulad.advancementhunt.AdvancementHunt;
-import xyz.regulad.advancementhunt.gamestate.PlayingState;
+import xyz.regulad.advancementhunt.game.states.PlayingState;
 
 public class CompassLocationRunnable extends BukkitRunnable {
     private final AdvancementHunt plugin;

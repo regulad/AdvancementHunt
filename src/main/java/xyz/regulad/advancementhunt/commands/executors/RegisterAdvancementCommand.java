@@ -1,4 +1,4 @@
-package xyz.regulad.advancementhunt.commands;
+package xyz.regulad.advancementhunt.commands.executors;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;

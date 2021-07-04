@@ -1,9 +1,10 @@
-package xyz.regulad.advancementhunt;
+package xyz.regulad.advancementhunt.placeholders;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
-import xyz.regulad.advancementhunt.gamestate.PlayingState;
-import xyz.regulad.advancementhunt.util.AdvancementName;
+import xyz.regulad.advancementhunt.AdvancementHunt;
+import xyz.regulad.advancementhunt.game.states.PlayingState;
+import xyz.regulad.advancementhunt.util.AdvancementUtil;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -84,7 +85,7 @@ public class AdvancementHuntPlaceholders extends PlaceholderExpansion {
             case "advancement":
                 if (this.plugin.getCurrentGameState() instanceof PlayingState) {
                     PlayingState currentGameState = (PlayingState) this.plugin.getCurrentGameState();
-                    return AdvancementName.getAdvancementTitle(currentGameState.goalAdvancement);
+                    return AdvancementUtil.getAdvancementTitle(currentGameState.goalAdvancement);
                 } else {
                     return "";
                 }

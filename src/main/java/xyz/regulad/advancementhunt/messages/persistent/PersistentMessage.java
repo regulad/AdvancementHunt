@@ -1,4 +1,4 @@
-package xyz.regulad.advancementhunt.messages;
+package xyz.regulad.advancementhunt.messages.persistent;
 
 public enum PersistentMessage {
     HUNTER,

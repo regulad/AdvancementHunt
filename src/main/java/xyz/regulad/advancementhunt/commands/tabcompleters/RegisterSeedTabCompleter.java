@@ -1,4 +1,4 @@
-package xyz.regulad.advancementhunt.tabcompleters;
+package xyz.regulad.advancementhunt.commands.tabcompleters;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

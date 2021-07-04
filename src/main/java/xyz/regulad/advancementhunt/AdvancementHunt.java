@@ -6,28 +6,31 @@ import org.bukkit.advancement.Advancement;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import xyz.regulad.advancementhunt.commands.GameendCommand;
-import xyz.regulad.advancementhunt.commands.GamestartCommand;
-import xyz.regulad.advancementhunt.commands.RegisterAdvancementCommand;
-import xyz.regulad.advancementhunt.commands.RegisterSeedCommand;
+import xyz.regulad.advancementhunt.commands.executors.GameendCommand;
+import xyz.regulad.advancementhunt.commands.executors.GamestartCommand;
+import xyz.regulad.advancementhunt.commands.executors.RegisterAdvancementCommand;
+import xyz.regulad.advancementhunt.commands.executors.RegisterSeedCommand;
+import xyz.regulad.advancementhunt.commands.tabcompleters.GamestartTabCompleter;
+import xyz.regulad.advancementhunt.commands.tabcompleters.RegisterAdvancementTabCompleter;
+import xyz.regulad.advancementhunt.commands.tabcompleters.RegisterSeedTabCompleter;
 import xyz.regulad.advancementhunt.database.AdvancementManager;
 import xyz.regulad.advancementhunt.database.ConnectionType;
 import xyz.regulad.advancementhunt.database.PlayerStats;
 import xyz.regulad.advancementhunt.database.SeedManager;
+import xyz.regulad.advancementhunt.events.gamestate.PostGameStateChangeEvent;
+import xyz.regulad.advancementhunt.events.gamestate.PreGameStateChangeEvent;
 import xyz.regulad.advancementhunt.exceptions.GameAlreadyStartedException;
 import xyz.regulad.advancementhunt.exceptions.GameNotStartedException;
-import xyz.regulad.advancementhunt.gamestate.GameEndReason;
-import xyz.regulad.advancementhunt.gamestate.GameState;
-import xyz.regulad.advancementhunt.gamestate.IdleState;
-import xyz.regulad.advancementhunt.gamestate.PlayingState;
+import xyz.regulad.advancementhunt.game.GameEndReason;
+import xyz.regulad.advancementhunt.game.states.GameState;
+import xyz.regulad.advancementhunt.game.states.IdleState;
+import xyz.regulad.advancementhunt.game.states.PlayingState;
+import xyz.regulad.advancementhunt.listener.GameStateChangeListener;
 import xyz.regulad.advancementhunt.listener.PlayerAdvancementDoneListener;
 import xyz.regulad.advancementhunt.listener.PlayerConnectionListener;
 import xyz.regulad.advancementhunt.listener.PlayerDeathListener;
-import xyz.regulad.advancementhunt.messages.Message;
 import xyz.regulad.advancementhunt.messages.MessageManager;
-import xyz.regulad.advancementhunt.tabcompleters.GamestartTabCompleter;
-import xyz.regulad.advancementhunt.tabcompleters.RegisterAdvancementTabCompleter;
-import xyz.regulad.advancementhunt.tabcompleters.RegisterSeedTabCompleter;
+import xyz.regulad.advancementhunt.placeholders.AdvancementHuntPlaceholders;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -110,6 +113,7 @@ public final class AdvancementHunt extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(new PlayerConnectionListener(this), this);
         this.getServer().getPluginManager().registerEvents(new PlayerAdvancementDoneListener(this), this);
         this.getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
+        this.getServer().getPluginManager().registerEvents(new GameStateChangeListener(this), this);
 
         this.bukkitAudiences = BukkitAudiences.create(this);
 
@@ -167,12 +171,15 @@ public final class AdvancementHunt extends JavaPlugin {
     public void startGame(Player fleeingPlayer, ArrayList<Player> huntingPlayers, Advancement goalAdvancement, Instant endTime, String worldSeed, double worldSize) throws GameAlreadyStartedException {
         if (this.currentGameState instanceof IdleState) {
             PlayingState newPlayingState = new PlayingState(this, fleeingPlayer, huntingPlayers, goalAdvancement, endTime, worldSeed, worldSize);
-            newPlayingState.start();
-            this.currentGameState.end();
-            this.currentGameState = newPlayingState;
-            this.getMessageManager().dispatchMessage(newPlayingState.fleeingPlayer, Message.HUNTED_START);
-            for (Player player : newPlayingState.huntingPlayers) {
-                this.getMessageManager().dispatchMessage(player, Message.HUNTER_START);
+            IdleState currentIdleState = (IdleState) this.currentGameState;
+
+            PreGameStateChangeEvent preGameStateChangeEvent = new PreGameStateChangeEvent(currentIdleState, newPlayingState);
+            this.getServer().getPluginManager().callEvent(preGameStateChangeEvent);
+            if (!preGameStateChangeEvent.isCancelled()) {
+                newPlayingState.start();
+                currentIdleState.end();
+                this.currentGameState = newPlayingState;
+                this.getServer().getPluginManager().callEvent(new PostGameStateChangeEvent(currentIdleState, newPlayingState));
             }
         } else {
             throw new GameAlreadyStartedException("A game has already started.");
@@ -181,70 +188,17 @@ public final class AdvancementHunt extends JavaPlugin {
 
     public void endGame(GameEndReason reason) throws GameNotStartedException {
         if (this.currentGameState instanceof PlayingState) {
-            PlayingState currentPlayingState = (PlayingState) this.currentGameState;
             IdleState newIdleState = new IdleState(this, reason);
-            newIdleState.start();
-            switch (reason) {
-                case HUNTED_WIN:
-                    // Give the runner the win
-                    PlayerStats winnerStats = this.getPlayerStats(currentPlayingState.fleeingPlayer);
-                    winnerStats.setWins(winnerStats.getWins() + 1);
-                    this.getMessageManager().dispatchMessage(currentPlayingState.fleeingPlayer, Message.HUNTED_WIN);
-                    // Give the hunters a loss
-                    for (Player player : currentPlayingState.huntingPlayers) {
-                        PlayerStats hunterStats = this.getPlayerStats(player);
-                        hunterStats.setLosses(hunterStats.getLosses() + 1);
-                        this.getMessageManager().dispatchMessage(player, Message.HUNTED_WIN);
-                    }
-                    break;
-                case HUNTER_WIN:
-                    // Give the runner a loss
-                    PlayerStats loserStats = this.getPlayerStats(currentPlayingState.fleeingPlayer);
-                    loserStats.setLosses(loserStats.getLosses() + 1);
-                    this.getMessageManager().dispatchMessage(currentPlayingState.fleeingPlayer, Message.HUNTER_WIN);
-                    // Give the hunters a win
-                    for (Player player : currentPlayingState.huntingPlayers) {
-                        PlayerStats hunterStats = this.getPlayerStats(player);
-                        hunterStats.setWins(hunterStats.getWins() + 1);
-                        this.getMessageManager().dispatchMessage(player, Message.HUNTER_WIN);
-                    }
-                    break;
-                case HUNTED_LEAVE:
-                    // The hunted left. Punish themmmmmmm!
-                    PlayerStats huntedStats = this.getPlayerStats(currentPlayingState.fleeingPlayer);
-                    huntedStats.setLosses(huntedStats.getLosses() + 1);
-                    this.getMessageManager().dispatchMessage(currentPlayingState.fleeingPlayer, Message.LEFT);
-                    for (Player player : currentPlayingState.huntingPlayers) {
-                        this.getMessageManager().dispatchMessage(player, Message.LEFT);
-                    }
-                    break;
-                case HUNTER_LEAVE:
-                    // All the hunters left. Punish themmmmmmm!
-                    this.getMessageManager().dispatchMessage(currentPlayingState.fleeingPlayer, Message.LEFT);
-                    for (Player player : currentPlayingState.leftPlayers) {
-                        PlayerStats hunterStats = this.getPlayerStats(player);
-                        hunterStats.setLosses(hunterStats.getLosses() + 1);
-                    }
-                    for (Player player : currentPlayingState.huntingPlayers) {
-                        this.getMessageManager().dispatchMessage(player, Message.LEFT);
-                    }
-                    break;
-                case TIME_UP:
-                    // Time is up.
-                    // Give the runner a loss
-                    PlayerStats hunterStats1 = this.getPlayerStats(currentPlayingState.fleeingPlayer);
-                    hunterStats1.setLosses(hunterStats1.getLosses() + 1);
-                    this.getMessageManager().dispatchMessage(currentPlayingState.fleeingPlayer, Message.TIME_UP);
-                    // Give the hunters a loss, too
-                    for (Player player : currentPlayingState.huntingPlayers) {
-                        PlayerStats hunterStats = this.getPlayerStats(player);
-                        hunterStats.setLosses(hunterStats.getLosses() + 1);
-                        this.getMessageManager().dispatchMessage(player, Message.TIME_UP);
-                    }
-                    break;
+            PlayingState currentPlayingState = (PlayingState) this.currentGameState;
+
+            PreGameStateChangeEvent preGameStateChangeEvent = new PreGameStateChangeEvent(currentPlayingState, newIdleState);
+            this.getServer().getPluginManager().callEvent(preGameStateChangeEvent);
+            if (!preGameStateChangeEvent.isCancelled()) {
+                newIdleState.start();
+                this.currentGameState.end();
+                this.currentGameState = newIdleState;
+                this.getServer().getPluginManager().callEvent(new PostGameStateChangeEvent(currentPlayingState, newIdleState));
             }
-            this.currentGameState.end();
-            this.currentGameState = newIdleState;
         } else {
             throw new GameNotStartedException("A game is not ongoing.");
         }
