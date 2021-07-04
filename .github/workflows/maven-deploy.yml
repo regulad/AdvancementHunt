@@ -13,6 +13,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: 1.8
+          distribution: adopt
           server-id: regulad-releases
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
