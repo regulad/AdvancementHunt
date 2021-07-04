@@ -1,20 +1,67 @@
-# ----------------------------------------------------------------------------
-# General Configuration
-# ----------------------------------------------------------------------------
+version: 1 # Don't touch this! For future use.
 
-Game:
-  Permissions:
-    StartGame: advancementhunt.command.start
-    SetLocation: advancementhunt.command.set
-  MySQL:
-    Host: localhost
-    Port: '3306'
-    Database: advancementhunt
-    Options: ?autoReconnect=true
-    User: root
-    Password: passwd
-    table_prefix: ah_
-    Use_db: false
-  Extra:
-    Hub_Server: Hub
-    WorldName: advancementhunt
+# ----------------------------------------------------------------------------
+# AdvancementHunt Main Configuration
+# ----------------------------------------------------------------------------
+db:
+  type: sqlite # Can be either sqlite or mysql.
+  prefix: ah_
+  # SQLite only!
+  filename: database.sqlite # Must be a relative path.
+  # MySQL only!
+  host: localhost
+  port: 3306
+  name: advancementhunt
+  options: ?autoReconnect=true
+  user: root
+  passwd: ''
+game:
+  compass: true # Whether or not a compass will be granted to hunters that will point to the hunted.
+  world:
+    nether: true # If the nether should be generated with the overworld.
+    end: true # If the end should be generated with the overworld.
+    # Please note that enabling either of these options will only create/delete the worlds.
+    # If you want players to be able to go inbetween the worlds, Multiverse-NetherPortals must be installed.
+
+# ----------------------------------------------------------------------------
+# AdvancementHunt Messages
+# You may use PlaceholderAPI placeholders in these messages.
+# Each key should hold an array.
+#   Each item in the array should be an object.
+#     The object should have the following keys:
+#       send_type: This may be either title, actionbar, or chat.
+#       message: The actual message to send.
+#       submessage: Only applies if send_type is title.
+# ----------------------------------------------------------------------------
+kick_message: "A game of AdvancementHunt is currently ongoing! Please check back later." # This message will be shown to users if they attempt to connect while a game is ongoing.
+messages:
+  hunter_persistent: # This will appear during the whole game and be refreshed every second.
+    - send_type: actionbar
+      message: "%ah_time% | %ah_hunted%"
+  hunted_persistent: # This will appear during the whole game and be refreshed every second.
+    - send_type: actionbar
+      message: "%ah_time% | %ah_advancement%"
+  hunter_win:
+    - send_type: title
+      message: "%ah_hunters% have won!"
+      submessage: "The game is over!"
+  hunted_win:
+    - send_type: title
+      message: "%ah_hunted% has won!"
+      submessage: "The game is over!"
+  hunter_start:
+    - send_type: title
+      message: "Kill %ah_hunted%!"
+      submessage: "Get going!"
+  hunted_start:
+    - send_type: title
+      message: "Get the advancement %ah_advancement%!"
+      submessage: "Avoid %ah_hunters%."
+  time_up:
+    - send_type: title
+      message: "Time's up!"
+      submessage: "Everybody loses!"
+  left:
+    - send_type: title
+      message: "Someone left!"
+      submessage: "Does this count as a stalemate?"

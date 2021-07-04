@@ -1,172 +1,106 @@
 package xyz.regulad.advancementhunt.commands;
 
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.WorldCreator;
+import org.bukkit.NamespacedKey;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import xyz.regulad.advancementhunt.AdvancementHunt;
-import xyz.regulad.advancementhunt.gamestates.LobbyState;
-import xyz.regulad.advancementhunt.message.MessageType;
-import xyz.regulad.advancementhunt.mysql.MySQLManager;
-import xyz.regulad.advancementhunt.permissions.Permission;
-import xyz.regulad.advancementhunt.teams.Team;
-import xyz.regulad.advancementhunt.teams.TeamManager;
+import xyz.regulad.advancementhunt.exceptions.GameAlreadyStartedException;
 
-import java.util.Random;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 
 public class GamestartCommand implements CommandExecutor {
-
     private final AdvancementHunt plugin;
-    private final MySQLManager mySQLManager;
 
     public GamestartCommand(AdvancementHunt plugin) {
         this.plugin = plugin;
-        this.mySQLManager = plugin.getMySQLManager();
     }
-
-    private final LobbyState lobbyState = (LobbyState) AdvancementHunt.getInstance().getGameStateManager().getCurrentGameState();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (this.plugin.getServer().getOnlinePlayers().size() == 1) {
+            sender.sendMessage("You cannot play the game with only one player.");
             return true;
-        }
-
-        if (!(plugin.getGameStateManager().getCurrentGameState() instanceof LobbyState)) {
-            System.out.println("In LobbyState");
-            return true;
-        }
-
-        if (lobbyState.getLobbyTimer().isStarted()) {
-            System.out.println("Is Started");
-            return true;
-        }
-        Player player = (Player) sender;
-
-        String advancementId;
-        String seed;
-        int timeLimit;
-        int countdownSeconds;
-        String username;
-        boolean glow;
-        boolean compass;
-        int distance;
-
-        if (!(args.length == 8)) {
-            Random random = new Random();
-            advancementId = mySQLManager.getAdvancements().get(random.nextInt(mySQLManager.getAdvancements().size()));
-            seed = mySQLManager.getSeeds().get(new Random().nextInt(mySQLManager.getSeeds().size())) + "";
-            timeLimit = 30;
-            countdownSeconds = 5;
-            username = ((Player) Bukkit.getOnlinePlayers().toArray()[new Random().nextInt(Bukkit.getOnlinePlayers().toArray().length)]).getName();
-
-            distance = 10;
-
-            if (Bukkit.getOnlinePlayers().size() >= LobbyState.MIN_PLAYERS) {
-                plugin.getMessageManager().sendMessage(player, MessageType.CREATING_WORLD);
-                plugin.getUtils().getWorldUtil().worldCreate(plugin.getWorldName(), World.Environment.NORMAL, seed);
-
-                WorldCreator normal_world = new WorldCreator(plugin.getWorldName());
-
-                runCheck(advancementId, seed, timeLimit, username, distance, normal_world);
-
-                plugin.setGlow(true);
-                plugin.setCompass(true);
-
-                lobbyState.getLobbyTimer().setSeconds(countdownSeconds);
-                lobbyState.getLobbyTimer().start();
-            } else {
-                plugin.getMessageManager().sendMessageReplace(player, MessageType.NOT_ENOUGH_PLAYERS, "%count%", LobbyState.MIN_PLAYERS - Bukkit.getOnlinePlayers().size() + "");
-            }
-            return true;
-        }
-
-
-        if (!(player.hasPermission(plugin.getPermissionManager().getPermission(Permission.START)))) {
-            return true;
-        }
-
-        if (!args[0].equalsIgnoreCase("random")) {
-            advancementId = args[0];
         } else {
-            Random random = new Random();
-            advancementId = mySQLManager.getAdvancements().get(random.nextInt(mySQLManager.getAdvancements().size()));
-        }
+            if (args.length == 1) {
+                Player huntedPlayer = this.plugin.getServer().getPlayer(args[0]);
+                if (huntedPlayer == null) return false; // Player isn't real. Oops!
+                Collection<? extends Player> onlinePlayers = this.plugin.getServer().getOnlinePlayers();
+                ArrayList<Player> hunterPlayers = new ArrayList<>();
 
-        seed = args[1];
+                for (Player player : onlinePlayers) {
+                    if (!player.equals(huntedPlayer)) hunterPlayers.add(player);
+                }
 
-        if (args[1].equalsIgnoreCase("random")) {
-            // if seed is random set seed to random long
-            seed = mySQLManager.getSeeds().get(new Random().nextInt(mySQLManager.getSeeds().size())) + "";
-        }
-        timeLimit = Integer.parseInt(args[2]);
-        countdownSeconds = Integer.parseInt(args[3]);
-        if (!args[4].equalsIgnoreCase("random")) {
-            if (Bukkit.getPlayer(args[4]) != null) {
-                username = args[4];
-            } else {
-                plugin.getMessageManager().sendMessage(player, MessageType.PLAYER_NOT_ONLINE);
+                final HashMap<Advancement, Integer> advancementHashMap;
+                final HashMap<String, Integer> seedHashMap;
+                try {
+                    advancementHashMap = this.plugin.getAdvancementManager().getAdvancement();
+                    seedHashMap = this.plugin.getSeedManager().getSeed();
+
+                    try {
+                        this.plugin.startGame(huntedPlayer, hunterPlayers, (Advancement) advancementHashMap.keySet().toArray()[0], Instant.ofEpochMilli(System.currentTimeMillis() + (Integer) advancementHashMap.values().toArray()[0] * 1000), (String) seedHashMap.keySet().toArray()[0], (Double) seedHashMap.values().toArray()[0]);
+                        sender.sendMessage("The game has started.");
+                    } catch (GameAlreadyStartedException exception) {
+                        sender.sendMessage("The game cannot be started, one is already ongoing.");
+                    }
+                } catch (SQLException exception) {
+                    this.plugin.getLogger().severe(exception.getMessage());
+                    sender.sendMessage("§4AdvancementHunt was unable to read the database. Please check the console!");
+                }
                 return true;
-            }
-        } else {
-            username = null;
-        }
-        glow = Boolean.parseBoolean(args[5]);
-        compass = Boolean.parseBoolean(args[6]);
-        distance = Integer.parseInt(args[7]);
+            } else if (args.length == 3) {
+                Player huntedPlayer = this.plugin.getServer().getPlayer(args[0]);
+                if (huntedPlayer == null) return false; // Player isn't real. Oops!
+                Collection<? extends Player> onlinePlayers = this.plugin.getServer().getOnlinePlayers();
+                ArrayList<Player> hunterPlayers = new ArrayList<>();
 
-        if (Bukkit.getOnlinePlayers().size() >= LobbyState.MIN_PLAYERS) {
-            // New message update
-            plugin.getMessageManager().sendMessage(player, MessageType.CREATING_WORLD);
-            plugin.getUtils().getWorldUtil().worldCreate(plugin.getWorldName(), World.Environment.NORMAL, seed);
+                for (Player player : onlinePlayers) {
+                    if (!player.equals(huntedPlayer)) hunterPlayers.add(player);
+                }
 
-            // Fist Make world and load them
-            WorldCreator normal_world = new WorldCreator(plugin.getWorldName());
-            runCheck(advancementId, seed, timeLimit, username, distance, normal_world);
+                final HashMap<String, Integer> seedHashMap;
+                try {
+                    seedHashMap = this.plugin.getSeedManager().getSeed();
 
-            plugin.setGlow(glow);
-            plugin.setCompass(compass);
+                    try {
+                        this.plugin.startGame(huntedPlayer, hunterPlayers, this.plugin.getServer().getAdvancement(NamespacedKey.minecraft(args[1])), Instant.ofEpochMilli(System.currentTimeMillis() + Integer.parseInt(args[2]) * 60_000L), (String) seedHashMap.keySet().toArray()[0], (Double) seedHashMap.values().toArray()[0]);
+                        sender.sendMessage("The game has started.");
+                    } catch (GameAlreadyStartedException exception) {
+                        sender.sendMessage("The game cannot be started, one is already ongoing.");
+                    }
+                } catch (SQLException exception) {
+                    this.plugin.getLogger().severe(exception.getMessage());
+                    sender.sendMessage("§4AdvancementHunt was unable to read the database. Please check the console!");
+                }
+                return true;
+            } else if (args.length == 5) {
+                Player huntedPlayer = this.plugin.getServer().getPlayer(args[0]);
+                if (huntedPlayer == null) return false; // Player isn't real. Oops!
+                Collection<? extends Player> onlinePlayers = this.plugin.getServer().getOnlinePlayers();
+                ArrayList<Player> hunterPlayers = new ArrayList<>();
 
-            lobbyState.getLobbyTimer().setSeconds(countdownSeconds);
-            lobbyState.getLobbyTimer().start();
-        } else {
-            player.sendMessage(plugin.getConfigManager().getMessageWithReplace("Game.Messages.NotEnoughPlayers", "%count%", String.valueOf((LobbyState.MIN_PLAYERS - Bukkit.getOnlinePlayers().size()))));
-        }
+                for (Player player : onlinePlayers) {
+                    if (!player.equals(huntedPlayer)) hunterPlayers.add(player);
+                }
 
-        return true;
-    }
-
-    private void runCheck(String advancementId, String seed, int timeLimit, String username, int distance, WorldCreator normal_world) {
-        normal_world.seed(Long.parseLong(seed));
-        normal_world.environment(World.Environment.NORMAL);
-        normal_world.createWorld();
-        plugin.getMultiverseCore().getMVWorldManager().getMVWorld(plugin.getWorldName()).setSpawnLocation(Bukkit.getWorld(plugin.getWorldName()).getSpawnLocation());
-
-        WorldCreator nether_world = new WorldCreator(plugin.getWorldName() + "_nether");
-        nether_world.environment(World.Environment.NETHER);
-        nether_world.createWorld();
-
-        WorldCreator end_world = new WorldCreator(plugin.getWorldName() + "_the_end");
-        end_world.environment(World.Environment.THE_END);
-        end_world.createWorld();
-
-        plugin.getTeamManager().setInTeam(Bukkit.getPlayer(username), Team.PLAYER);
-
-        TeamManager teamManager = plugin.getTeamManager();
-
-        for (Player allPlayers : Bukkit.getOnlinePlayers()) {
-            if (teamManager.getTeams().get(allPlayers) != Team.PLAYER) {
-                teamManager.setInTeam(allPlayers, Team.HUNTER);
+                try {
+                    this.plugin.startGame(huntedPlayer, hunterPlayers, this.plugin.getServer().getAdvancement(NamespacedKey.minecraft(args[1])), Instant.ofEpochMilli(System.currentTimeMillis() + Integer.parseInt(args[2]) * 60_000L), args[3], Double.parseDouble(args[4]));
+                    sender.sendMessage("The game has started.");
+                } catch (GameAlreadyStartedException exception) {
+                    sender.sendMessage("The game cannot be started, one is already ongoing.");
+                }
+                return true;
+            } else {
+                return false;
             }
         }
-
-        plugin.setAdvancement_id(advancementId);
-        plugin.setMinutesUntilEnd(timeLimit);
-
-        plugin.setDistance(distance);
     }
 }

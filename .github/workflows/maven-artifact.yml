@@ -5,9 +5,9 @@ name: Java CI with Maven and Artifact
 
 on:
   push:
-    branches: [ main ]
+    branches: [ rewrite ]
   pull_request:
-    branches: [ main ]
+    branches: [ rewrite ]
 
 jobs:
   build:

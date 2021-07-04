@@ -2,50 +2,60 @@
 
 AdvancementHunt is a minigame plugin.
 
-The objective of the game is to obtain a certian advancement
+The objective of the game is to obtain a certain advancement within the time limit without dying.
+
+There are two teams, the Hunters and the Hunted.
+
+At the beginning of the game, the Hunted will recieve the name of an advancement and are tasked with completing it. 
+
+They must first figure out what the advancement is and then obtain it.
+
+Also, at the beginning of the game, the Hunters are tasked with killing the Hunted before they obtain the advancement. The Hunters may not know what the advancement is.
+
+All games have a time limit, and if it is reached, the game will stalemate.
+
+Game stats are logged and can be accessed via PlaceholderAPI placeholders.
 
 ## Requirements
 
 1. The following plugins:
     * Multiverse-Core
-    * Multiverse-NetherPortals
     * PlaceholderAPI
-1. Java 8
-1. [Paper](https://github.com/PaperMC/Paper), or a [fork that fully supports the API](https://github.com/topics/paper-fork), running Minecraft 1.15 or higher
+2. Java 8
+3. Spigot 1.13+
+
+Optional plugins:
+   * Multiverse-NetherPortals
 
 ## Setup
 
-1. MySQL in config.yml
-    * This can be disabled, and the plugin will work.
-1. The set lobby spawn
+AdvancementHunt is ready to go out of the box. 
 
 ## Use
 
 ### Commands
 
-* `/gamestart`: Shows you informations to start the game
-* `/set <LobbySpawn>`: Sets the Lobbyspawn
+* `/gamestart [Hunted player] [Advancement] <Time (Minutes)> [World seed] <Worldborder>`: Allows you to start the game.
+* `/gameend`: Allows you to end the game.
+* `/registeradvancement <Advancement> <Time (Minutes)>`: Allows you to add an advancement and time limit to the database.
+* `/registerseed <World seed> <Worldborder>`: Allows you to add a seed and worldborder size to the database.
 
-### Permissions
-
-#### You can change these if you want
-
-1. **StartGame**: `advancementhunt.command.start`
-1. **SetLocation**: `advancementhunt.command.set`
-
-### MySQL
-
-#### You can disable this if you want to use the plugin standalone
-
-1. You can change the host, port, database, database prefix, JDBC options, username, and password.
-
-## Placeholder API Placeholders
+## Placeholders
 
 ### Identifier is `ah`
 
-* `time_remaining` - The remaining time. (HH:MM:ss)
-* `wins` - The total amount of wins a player has. (Pulled from DB, not cached!)
-* `losses` - The total amount of losses a player has. (Pulled from DB, not cached!)
-* `kills` - Shows kills of the player
-* `deaths` - shows death's of the player
-* `id` - The advancement id. (Only the namespaced ID)
+* `wins`: The total amount of wins a player has.
+* `losses`: The total amount of losses a player has.
+* `kills`: Shows total kills of the player.
+* `deaths`: Shows total deaths of the player.
+* `id`: The advancement ID.
+* `advancement`: The name of the advancement.
+* `hunted`: Shows the display name of the player being hunted.
+* `hunters`: Shows a list of display names for the players that are hunting. Seperated by commas.
+* `time`: Shows time remaining, in `HH:MM:SS` format.
+
+Example:
+
+```
+%ah_time% | %ah_heading%
+```

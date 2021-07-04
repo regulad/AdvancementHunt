@@ -1,17 +1,13 @@
 package xyz.regulad.advancementhunt.listener;
 
-import com.destroystokyo.paper.Title;
-import org.bukkit.*;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 import xyz.regulad.advancementhunt.AdvancementHunt;
-import xyz.regulad.advancementhunt.gamestates.GameState;
-import xyz.regulad.advancementhunt.message.MessageType;
-import xyz.regulad.advancementhunt.teams.Team;
+import xyz.regulad.advancementhunt.database.PlayerStats;
+import xyz.regulad.advancementhunt.exceptions.GameNotStartedException;
+import xyz.regulad.advancementhunt.gamestate.GameEndReason;
+import xyz.regulad.advancementhunt.gamestate.PlayingState;
 
 public class PlayerDeathListener implements Listener {
 
@@ -22,54 +18,23 @@ public class PlayerDeathListener implements Listener {
     }
 
     @EventHandler
-    public void onDeath(PlayerDeathEvent event) {
-        Player player = event.getEntity();
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        if (this.plugin.getCurrentGameState() instanceof PlayingState) {
+            PlayingState playingState = (PlayingState) this.plugin.getCurrentGameState();
 
-        if (plugin.getTeamManager().getPlayers(Team.PLAYER).contains(player)) {
-            World w = Bukkit.getServer().getWorld(plugin.getWorldName());
-
-            for (Player all : Bukkit.getOnlinePlayers()) {
-                plugin.getMessageManager().sendMessage(all, MessageType.HUNTERWON);
+            if (event.getEntity().getKiller() != null) {
+                PlayerStats killerStats = this.plugin.getPlayerStats(event.getEntity().getKiller());
+                killerStats.setKills(killerStats.getKills() + 1);
             }
+            PlayerStats deadStats = this.plugin.getPlayerStats(event.getEntity());
+            deadStats.setDeaths(deadStats.getDeaths() + 1);
 
-            plugin.getGameStateManager().setGameState(GameState.ENDING_STATE);
-
-            plugin.getUtils().getFightUtil().addWin(plugin.getTeamManager().getPlayers(Team.HUNTER).get(0), 1);
-            plugin.getUtils().getFightUtil().addWin(plugin.getTeamManager().getPlayers(Team.HUNTER).get(1), 1);
-            plugin.getUtils().getFightUtil().addLoose(plugin.getTeamManager().getPlayers(Team.PLAYER).get(0), 1);
-        } else if (plugin.getTeamManager().getPlayers(Team.HUNTER).contains(player)) {
-            World w = Bukkit.getServer().getWorld(plugin.getWorldName());
-
-            WorldBorder wb = Bukkit.getWorld(plugin.getWorldName()).getWorldBorder();
-
-            respawnWithRunnable(player, new Location(w, w.getSpawnLocation().getX(), w.getSpawnLocation().getY(), w.getSpawnLocation().getZ() - plugin.getDistance()));
-
-            event.getDrops().remove(new ItemStack(Material.COMPASS));
-        }
-    }
-
-    private void respawnWithRunnable(Player player, Location location) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                // Removed instant respawn
-                player.teleport(location);
-
-                if (plugin.isCompass()) {
-                    player.getInventory().addItem(new ItemStack(Material.COMPASS));
+            if (playingState.fleeingPlayer.equals(event.getEntity())) {
+                try {
+                    this.plugin.endGame(GameEndReason.HUNTER_WIN);
+                } catch (GameNotStartedException ignored) {
                 }
-
-            }
-        }.runTaskLater(plugin, 3);
-    }
-
-    private void respawn(Player player) {
-        (new BukkitRunnable() {
-            public void run() {
-
-                player.spigot().respawn();
-                player.sendTitle(new Title("TEST", "", 1, 1, 1));
-            }
-        }).runTaskLater(plugin, 3L);
+            } // Maybe some logic to change the game time if a hunter dies
+        }
     }
 }

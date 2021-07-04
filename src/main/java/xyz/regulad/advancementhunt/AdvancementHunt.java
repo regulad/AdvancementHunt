@@ -1,285 +1,276 @@
 package xyz.regulad.advancementhunt;
 
-import com.onarandombox.MultiverseCore.MultiverseCore;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import org.bstats.bukkit.Metrics;
+import org.bukkit.advancement.Advancement;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
-import xyz.regulad.advancementhunt.actionbar.ActionbarManager;
-import xyz.regulad.advancementhunt.commands.DebugCommand;
-import xyz.regulad.advancementhunt.commands.GameStartTabCompleter;
+import xyz.regulad.advancementhunt.commands.GameendCommand;
 import xyz.regulad.advancementhunt.commands.GamestartCommand;
-import xyz.regulad.advancementhunt.commands.SetCommand;
-import xyz.regulad.advancementhunt.config.AdvancementSeed;
-import xyz.regulad.advancementhunt.config.ConfigManager;
-import xyz.regulad.advancementhunt.config.Messages;
-import xyz.regulad.advancementhunt.gamestates.GameState;
-import xyz.regulad.advancementhunt.gamestates.GameStateManager;
+import xyz.regulad.advancementhunt.commands.RegisterAdvancementCommand;
+import xyz.regulad.advancementhunt.commands.RegisterSeedCommand;
+import xyz.regulad.advancementhunt.database.AdvancementManager;
+import xyz.regulad.advancementhunt.database.ConnectionType;
+import xyz.regulad.advancementhunt.database.PlayerStats;
+import xyz.regulad.advancementhunt.database.SeedManager;
+import xyz.regulad.advancementhunt.exceptions.GameAlreadyStartedException;
+import xyz.regulad.advancementhunt.exceptions.GameNotStartedException;
+import xyz.regulad.advancementhunt.gamestate.GameEndReason;
+import xyz.regulad.advancementhunt.gamestate.GameState;
+import xyz.regulad.advancementhunt.gamestate.IdleState;
+import xyz.regulad.advancementhunt.gamestate.PlayingState;
 import xyz.regulad.advancementhunt.listener.PlayerAdvancementDoneListener;
 import xyz.regulad.advancementhunt.listener.PlayerConnectionListener;
 import xyz.regulad.advancementhunt.listener.PlayerDeathListener;
-import xyz.regulad.advancementhunt.message.MessageManager;
-import xyz.regulad.advancementhunt.mysql.MySQL;
-import xyz.regulad.advancementhunt.mysql.MySQLManager;
-import xyz.regulad.advancementhunt.permissions.PermissionManager;
-import xyz.regulad.advancementhunt.placeholder.SpigotExpansion;
-import xyz.regulad.advancementhunt.teams.TeamManager;
-import xyz.regulad.advancementhunt.util.Utils;
+import xyz.regulad.advancementhunt.messages.Message;
+import xyz.regulad.advancementhunt.messages.MessageManager;
+import xyz.regulad.advancementhunt.tabcompleters.GamestartTabCompleter;
+import xyz.regulad.advancementhunt.tabcompleters.RegisterAdvancementTabCompleter;
+import xyz.regulad.advancementhunt.tabcompleters.RegisterSeedTabCompleter;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.ArrayList;
 
 
 public final class AdvancementHunt extends JavaPlugin {
+    private Connection connection = null;
+    private ConnectionType connectionType = null;
+    private BukkitAudiences bukkitAudiences = null;
 
-    private static AdvancementHunt instance;
+    private GameState currentGameState = new IdleState(this, GameEndReason.NONE);
 
-    private String worldName = null;
-    private int minutesUntilEnd;
-    private String advancement_id = null;
-    private int distance;
-    private boolean glow;
-    private boolean compass;
+    private final SeedManager seedManager = new SeedManager(this);
+    private final AdvancementManager advancementManager = new AdvancementManager(this);
+    private final MessageManager messageManager = new MessageManager(this);
 
-    private Location compassLoc;
-
-    private MySQL mysql;
-    private final Utils utils = new Utils();
-    private GameStateManager gameStateManager;
-    private final PermissionManager permissionManager = new PermissionManager();
-    private ConfigManager configManager;
-    private MySQLManager mySQLManager;
-    private final TeamManager teamManager = new TeamManager();
-    private ActionbarManager actionbarManager;
-    private MessageManager messageManager;
-    private AdvancementSeed advancementSeed;
+    private final Metrics metrics = new Metrics(this, 11903); // If you make a fork of this plugin, you'll likely want to replace this.
+    // Stupid, but placeholder access has forced my hand.
 
     @Override
     public void onEnable() {
-        instance = this;
+        // pAPI
+        new AdvancementHuntPlaceholders(this).register();
 
-        actionbarManager = new ActionbarManager(instance);
-        configManager = new ConfigManager();
-        mySQLManager = new MySQLManager(instance);
+        // Setup configuration: this will do nothing if config.yml already exists.
+        this.saveDefaultConfig();
 
-        Messages messages = new Messages();
-
-        worldName = configManager.getMessage("Game.Extra.WorldName");
-
-        gameStateManager = new GameStateManager(instance);
-        gameStateManager.setGameState(GameState.LOBBY_STATE);
-
-        messageManager = new MessageManager(messages);
-
-        this.initMySQL();
-
-        new SpigotExpansion(instance).register();
-
-        this.register();
-
-        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-    }
-
-    private void initMySQL() {
-        if (!configManager.getConfig().getBoolean("Game.MySQL.Use_db")) {
-            advancementSeed = new AdvancementSeed();
+        // Database configuration
+        if (this.getConfig().getString("db.type").equalsIgnoreCase("mysql")) {
+            this.connectionType = ConnectionType.MYSQL;
+            try {
+                String jdbcUri = "jdbc:mysql://" + this.getConfig().getString("db.host") + ":" + this.getConfig().getInt("db.port") + "/" + this.getConfig().getString("db.name") + this.getConfig().getString("db.options");
+                this.connection = DriverManager.getConnection(jdbcUri, this.getConfig().getString("db.user"), this.getConfig().getString("db.passwd"));
+                this.getLogger().info("Successfully connected to the MySQL database at " + this.getConfig().getString("db.host") + ":" + this.getConfig().getInt("db.port"));
+            } catch (SQLException exception) {
+                this.getLogger().severe(exception.getMessage());
+                this.getServer().getPluginManager().disablePlugin(this);
+                return;
+            }
+        } else if (this.getConfig().getString("db.type").equalsIgnoreCase("sqlite")) {
+            this.connectionType = ConnectionType.SQLITE;
+            try {
+                this.connection = DriverManager.getConnection("jdbc:sqlite:" + this.getDataFolder().getAbsolutePath() + (System.getProperty("os.name").toLowerCase().contains("win") ? "\\" : "/") + this.getConfig().getString("db.filename"));
+                this.getLogger().info("Successfully connected to the SQLite database at " + this.getDataFolder().getAbsolutePath() + (System.getProperty("os.name").toLowerCase().contains("win") ? "\\" : "/") + this.getConfig().getString("db.filename"));
+            } catch (SQLException exception) {
+                this.getLogger().severe(exception.getMessage());
+                this.getServer().getPluginManager().disablePlugin(this);
+                return;
+            }
+        } else {
+            this.getLogger().severe("Invalid database type!");
+            this.getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
-        ConfigManager configManager = instance.getConfigManager();
-
+        // Write tables
         try {
-            mysql = new MySQL(configManager.getMessage("Game.MySQL.Host"), Integer.parseInt(configManager.getMessage("Game.MySQL.Port")), configManager.getMessage("Game.MySQL.Database"), configManager.getMessage("Game.MySQL.User"), configManager.getMessage("Game.MySQL.Password"));
-        } catch (Exception e) {
-            System.out.println("No connection (mysql)!");
+            // Create stats table
+            PreparedStatement preparedStatement = this.connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + this.getConfig().getString("db.prefix") + "stats (uuid VARCHAR(255) UNIQUE, kills INT NOT NULL default 0, deaths INT NOT NULL default 0, losses INT NOT NULL default 0, wins INT NOT NULL default 0, PRIMARY KEY (uuid));");
+            preparedStatement.execute();
+
+            // Create advancements table
+            PreparedStatement preparedStatement2 = this.connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + this.getConfig().getString("db.prefix") + "advancements (advancement VARCHAR(255) UNIQUE, minutes INT NOT NULL, PRIMARY KEY (advancement));");
+            preparedStatement2.execute();
+
+            // Create seeds table
+            PreparedStatement preparedStatement3 = this.connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + this.getConfig().getString("db.prefix") + "worlds (seed VARCHAR(255) UNIQUE, border INT NOT NULL default 60000000, PRIMARY KEY (seed));");
+            preparedStatement3.execute();
+        } catch (SQLException exception) {
+            this.getLogger().severe(exception.getMessage());
+            this.getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        // Register listeners
+        this.getServer().getPluginManager().registerEvents(new PlayerConnectionListener(this), this);
+        this.getServer().getPluginManager().registerEvents(new PlayerAdvancementDoneListener(this), this);
+        this.getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
+
+        this.bukkitAudiences = BukkitAudiences.create(this);
+
+        // Register commands
+        PluginCommand gamestartCommand = this.getCommand("gamestart");
+        gamestartCommand.setExecutor(new GamestartCommand(this));
+        gamestartCommand.setTabCompleter(new GamestartTabCompleter(this));
+
+        PluginCommand registerAdvancementCommand = this.getCommand("registeradvancement");
+        registerAdvancementCommand.setExecutor(new RegisterAdvancementCommand(this));
+        registerAdvancementCommand.setTabCompleter(new RegisterAdvancementTabCompleter(this));
+
+        PluginCommand registerSeedCommand = this.getCommand("registerseed");
+        registerSeedCommand.setExecutor(new RegisterSeedCommand(this));
+        registerSeedCommand.setTabCompleter(new RegisterSeedTabCompleter(this));
+
+        this.getCommand("gameend").setExecutor(new GameendCommand(this));
+
+        // Setup gamestate
+        this.currentGameState.start();
+    }
+
+    @Override
+    public void onDisable() {
+        // End the current state
+        if (this.currentGameState != null) {
+            this.currentGameState.end();
+            this.currentGameState = null;
+        }
+
+        if (this.bukkitAudiences != null) {
+            this.bukkitAudiences.close();
+            this.bukkitAudiences = null;
+        }
+
+        // Close the SQL connection
+        if (this.connection != null) {
+            try {
+                this.connection.close();
+                this.connection = null;
+            } catch (SQLException exception) {
+                this.getLogger().severe(exception.getMessage());
+            }
         }
     }
 
-    private void register() {
-        PluginManager pluginManager = Bukkit.getPluginManager();
-        pluginManager.registerEvents(new PlayerConnectionListener(instance), this);
-        pluginManager.registerEvents(new PlayerAdvancementDoneListener(instance), this);
-        pluginManager.registerEvents(new PlayerDeathListener(instance), this);
-
-        this.getCommand("set").setExecutor(new SetCommand(instance));
-        this.getCommand("gamestart").setExecutor(new GamestartCommand(instance));
-        this.getCommand("debug").setExecutor(new DebugCommand(instance));
-
-        getCommand("gamestart").setTabCompleter(new GameStartTabCompleter());
+    public Connection getConnection() {
+        return this.connection;
     }
 
+    public PlayerStats getPlayerStats(Player player) {
+        return new PlayerStats(player, this);
+    }
 
-    /**
-     * Get the {@link MultiverseCore} instance.
-     *
-     * @return the multiverse core instance.
-     */
-    public MultiverseCore getMultiverseCore() {
-        Plugin plugin = getServer().getPluginManager().getPlugin("Multiverse-Core");
-
-        if (plugin instanceof MultiverseCore) {
-            return (MultiverseCore) plugin;
+    public void startGame(Player fleeingPlayer, ArrayList<Player> huntingPlayers, Advancement goalAdvancement, Instant endTime, String worldSeed, double worldSize) throws GameAlreadyStartedException {
+        if (this.currentGameState instanceof IdleState) {
+            PlayingState newPlayingState = new PlayingState(this, fleeingPlayer, huntingPlayers, goalAdvancement, endTime, worldSeed, worldSize);
+            newPlayingState.start();
+            this.currentGameState.end();
+            this.currentGameState = newPlayingState;
+            this.getMessageManager().dispatchMessage(newPlayingState.fleeingPlayer, Message.HUNTED_START);
+            for (Player player : newPlayingState.huntingPlayers) {
+                this.getMessageManager().dispatchMessage(player, Message.HUNTER_START);
+            }
+        } else {
+            throw new GameAlreadyStartedException("A game has already started.");
         }
-
-        throw new RuntimeException("MultiVerse not found!");
     }
 
-    public static AdvancementHunt getInstance() {
-        return instance;
+    public void endGame(GameEndReason reason) throws GameNotStartedException {
+        if (this.currentGameState instanceof PlayingState) {
+            PlayingState currentPlayingState = (PlayingState) this.currentGameState;
+            IdleState newIdleState = new IdleState(this, reason);
+            newIdleState.start();
+            switch (reason) {
+                case HUNTED_WIN:
+                    // Give the runner the win
+                    PlayerStats winnerStats = this.getPlayerStats(currentPlayingState.fleeingPlayer);
+                    winnerStats.setWins(winnerStats.getWins() + 1);
+                    this.getMessageManager().dispatchMessage(currentPlayingState.fleeingPlayer, Message.HUNTED_WIN);
+                    // Give the hunters a loss
+                    for (Player player : currentPlayingState.huntingPlayers) {
+                        PlayerStats hunterStats = this.getPlayerStats(player);
+                        hunterStats.setLosses(hunterStats.getLosses() + 1);
+                        this.getMessageManager().dispatchMessage(player, Message.HUNTED_WIN);
+                    }
+                    break;
+                case HUNTER_WIN:
+                    // Give the runner a loss
+                    PlayerStats loserStats = this.getPlayerStats(currentPlayingState.fleeingPlayer);
+                    loserStats.setLosses(loserStats.getLosses() + 1);
+                    this.getMessageManager().dispatchMessage(currentPlayingState.fleeingPlayer, Message.HUNTER_WIN);
+                    // Give the hunters a win
+                    for (Player player : currentPlayingState.huntingPlayers) {
+                        PlayerStats hunterStats = this.getPlayerStats(player);
+                        hunterStats.setWins(hunterStats.getWins() + 1);
+                        this.getMessageManager().dispatchMessage(player, Message.HUNTER_WIN);
+                    }
+                    break;
+                case HUNTED_LEAVE:
+                    // The hunted left. Punish themmmmmmm!
+                    PlayerStats huntedStats = this.getPlayerStats(currentPlayingState.fleeingPlayer);
+                    huntedStats.setLosses(huntedStats.getLosses() + 1);
+                    this.getMessageManager().dispatchMessage(currentPlayingState.fleeingPlayer, Message.LEFT);
+                    for (Player player : currentPlayingState.huntingPlayers) {
+                        this.getMessageManager().dispatchMessage(player, Message.LEFT);
+                    }
+                    break;
+                case HUNTER_LEAVE:
+                    // All the hunters left. Punish themmmmmmm!
+                    this.getMessageManager().dispatchMessage(currentPlayingState.fleeingPlayer, Message.LEFT);
+                    for (Player player : currentPlayingState.leftPlayers) {
+                        PlayerStats hunterStats = this.getPlayerStats(player);
+                        hunterStats.setLosses(hunterStats.getLosses() + 1);
+                    }
+                    for (Player player : currentPlayingState.huntingPlayers) {
+                        this.getMessageManager().dispatchMessage(player, Message.LEFT);
+                    }
+                    break;
+                case TIME_UP:
+                    // Time is up.
+                    // Give the runner a loss
+                    PlayerStats hunterStats1 = this.getPlayerStats(currentPlayingState.fleeingPlayer);
+                    hunterStats1.setLosses(hunterStats1.getLosses() + 1);
+                    this.getMessageManager().dispatchMessage(currentPlayingState.fleeingPlayer, Message.TIME_UP);
+                    // Give the hunters a loss, too
+                    for (Player player : currentPlayingState.huntingPlayers) {
+                        PlayerStats hunterStats = this.getPlayerStats(player);
+                        hunterStats.setLosses(hunterStats.getLosses() + 1);
+                        this.getMessageManager().dispatchMessage(player, Message.TIME_UP);
+                    }
+                    break;
+            }
+            this.currentGameState.end();
+            this.currentGameState = newIdleState;
+        } else {
+            throw new GameNotStartedException("A game is not ongoing.");
+        }
     }
 
-    /**
-     * Get the {@link MessageManager} instance.
-     *
-     * @return the message manager
-     */
-    @NotNull
+    public SeedManager getSeedManager() {
+        return this.seedManager;
+    }
+
+    public AdvancementManager getAdvancementManager() {
+        return this.advancementManager;
+    }
+
+    public GameState getCurrentGameState() {
+        return this.currentGameState;
+    }
+
+    public ConnectionType getConnectionType() {
+        return this.connectionType;
+    }
+
     public MessageManager getMessageManager() {
-        return messageManager;
+        return this.messageManager;
     }
 
-    /**
-     * Get the {@link AdvancementSeed} seed.
-     *
-     * @return the world seed.
-     */
-    @NotNull
-    public AdvancementSeed getAdvancementSeed() {
-        return advancementSeed;
-    }
-
-    /**
-     * Get the {@link Utils} instance.
-     *
-     * @return the utilities instance.
-     */
-    @NotNull
-    public Utils getUtils() {
-        return utils;
-    }
-
-    public GameStateManager getGameStateManager() {
-        return gameStateManager;
-    }
-
-    public String getPrefix() {
-        return "§cAdvancementHunt §8- §r";
-    }
-
-    public String getWorldName() {
-        return worldName;
-    }
-
-    /**
-     * Get the {@link PermissionManager} instance.
-     *
-     * @return the permission manager
-     */
-    @NotNull
-    public PermissionManager getPermissionManager() {
-        return permissionManager;
-    }
-
-    /**
-     * Get the {@link MySQL} instance.
-     *
-     * @return the mysql instance.
-     */
-    @NotNull
-    public MySQL getMysql() {
-        return mysql;
-    }
-
-    /**
-     * Get the {@link ConfigManager} instance.
-     *
-     * @return the config manager
-     */
-    @NotNull
-    public ConfigManager getConfigManager() {
-        return configManager;
-    }
-
-    /**
-     * Get the {@link MySQLManager} instance.
-     *
-     * @return the mysql manager
-     */
-    @NotNull
-    public MySQLManager getMySQLManager() {
-        return mySQLManager;
-    }
-
-    public String getAdvancement_id() {
-        return advancement_id;
-    }
-
-    public void setAdvancement_id(String advancement_id) {
-        this.advancement_id = advancement_id;
-    }
-
-    /**
-     * Get the {@link TeamManager} instance.
-     *
-     * @return the team manager
-     */
-    @NotNull
-    public TeamManager getTeamManager() {
-        return teamManager;
-    }
-
-    /**
-     * Get the {@link ActionbarManager} instance.
-     *
-     * @return the action bar manager
-     */
-    @NotNull
-    public ActionbarManager getActionbarManager() {
-        return actionbarManager;
-    }
-
-    public int getMinutesUntilEnd() {
-        return minutesUntilEnd;
-    }
-
-    public void setMinutesUntilEnd(int minutesUntilEnd) {
-        this.minutesUntilEnd = minutesUntilEnd;
-    }
-
-    public int getDistance() {
-        return distance;
-    }
-
-    public void setDistance(int distance) {
-        this.distance = distance;
-    }
-
-    public boolean isGlow() {
-        return glow;
-    }
-
-    public boolean isCompass() {
-        return compass;
-    }
-
-    public void setGlow(boolean glow) {
-        this.glow = glow;
-    }
-
-    public void setCompass(boolean compass) {
-        this.compass = compass;
-    }
-
-    /**
-     * Get the {@link Location} location.
-     *
-     * @return the compass's location.
-     */
-    @NotNull
-    public Location getCompassLoc() {
-        return compassLoc;
-    }
-
-    public void setCompassLoc(Location compassLoc) {
-        this.compassLoc = compassLoc;
+    public BukkitAudiences getBukkitAudiences() {
+        return this.bukkitAudiences;
     }
 }
