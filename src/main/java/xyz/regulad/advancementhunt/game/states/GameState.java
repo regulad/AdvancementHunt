@@ -1,4 +1,4 @@
-package xyz.regulad.advancementhunt.gamestate;
+package xyz.regulad.advancementhunt.game.states;
 
 public interface GameState {
     void start();

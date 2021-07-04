@@ -1,8 +1,9 @@
-package xyz.regulad.advancementhunt.gamestate;
+package xyz.regulad.advancementhunt.game.tasks;
 
 import org.bukkit.scheduler.BukkitRunnable;
 import xyz.regulad.advancementhunt.AdvancementHunt;
 import xyz.regulad.advancementhunt.exceptions.GameNotStartedException;
+import xyz.regulad.advancementhunt.game.GameEndReason;
 
 public class GameEndingTask extends BukkitRunnable {
     private final AdvancementHunt plugin;

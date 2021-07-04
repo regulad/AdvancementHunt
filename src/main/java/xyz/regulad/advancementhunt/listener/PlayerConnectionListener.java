@@ -1,7 +1,6 @@
 package xyz.regulad.advancementhunt.listener;
 
 import org.bukkit.GameMode;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,9 +9,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import xyz.regulad.advancementhunt.AdvancementHunt;
 import xyz.regulad.advancementhunt.exceptions.GameNotStartedException;
-import xyz.regulad.advancementhunt.gamestate.GameEndReason;
-import xyz.regulad.advancementhunt.gamestate.IdleState;
-import xyz.regulad.advancementhunt.gamestate.PlayingState;
+import xyz.regulad.advancementhunt.game.GameEndReason;
+import xyz.regulad.advancementhunt.game.states.IdleState;
+import xyz.regulad.advancementhunt.game.states.PlayingState;
+import xyz.regulad.advancementhunt.util.PlayerUtil;
 
 public class PlayerConnectionListener implements Listener {
     private final AdvancementHunt plugin;
@@ -32,12 +32,7 @@ public class PlayerConnectionListener implements Listener {
         if (this.plugin.getCurrentGameState() instanceof IdleState) {
             Player player = playerJoinEvent.getPlayer();
             player.teleport(this.plugin.getServer().getWorlds().get(0).getSpawnLocation()); // Assumed to be the starting location
-            player.setInvulnerable(true);
-            player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
-            player.setFoodLevel(20);
-            player.setSaturation(5);
-            player.setExhaustion(0);
-            player.setGameMode(GameMode.ADVENTURE);
+            PlayerUtil.resetPlayer(player, GameMode.ADVENTURE, true);
         }
     }
 

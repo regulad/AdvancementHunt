@@ -1,4 +1,4 @@
-package xyz.regulad.advancementhunt.gamestate;
+package xyz.regulad.advancementhunt.game.states;
 
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import com.onarandombox.MultiverseCore.api.MVWorldManager;
@@ -7,18 +7,17 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldType;
 import org.bukkit.advancement.Advancement;
-import org.bukkit.advancement.AdvancementProgress;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import xyz.regulad.advancementhunt.AdvancementHunt;
-import xyz.regulad.advancementhunt.compass.CompassLocationRunnable;
-import xyz.regulad.advancementhunt.messages.PersistentMessage;
-import xyz.regulad.advancementhunt.messages.PersistentMessageRunnable;
+import xyz.regulad.advancementhunt.game.tasks.CompassLocationRunnable;
+import xyz.regulad.advancementhunt.game.tasks.GameEndingTask;
+import xyz.regulad.advancementhunt.messages.persistent.PersistentMessage;
+import xyz.regulad.advancementhunt.messages.persistent.PersistentMessageRunnable;
+import xyz.regulad.advancementhunt.util.PlayerUtil;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Random;
 
 public class PlayingState implements GameState {
@@ -27,6 +26,7 @@ public class PlayingState implements GameState {
     private final PersistentMessageRunnable huntedRunnable;
     private final PersistentMessageRunnable hunterRunnable;
     private final CompassLocationRunnable compassLocationRunnable;
+
     public final Player fleeingPlayer;
     public final ArrayList<Player> huntingPlayers;
     public final Advancement goalAdvancement;
@@ -42,16 +42,17 @@ public class PlayingState implements GameState {
 
     public PlayingState(AdvancementHunt plugin, Player fleeingPlayer, ArrayList<Player> huntingPlayers, Advancement goalAdvancement, Instant endTime, String worldSeed, double worldSize) {
         this.plugin = plugin;
+        this.gameEndingTask = new GameEndingTask(this.plugin);
+        this.huntedRunnable = new PersistentMessageRunnable(this.plugin, this, PersistentMessage.HUNTED);
+        this.hunterRunnable = new PersistentMessageRunnable(this.plugin, this, PersistentMessage.HUNTER);
+        this.compassLocationRunnable = new CompassLocationRunnable(this.plugin, this);
+
         this.fleeingPlayer = fleeingPlayer;
         this.huntingPlayers = huntingPlayers;
         this.goalAdvancement = goalAdvancement;
         this.endTime = endTime;
         this.worldSeed = worldSeed;
         this.worldSize = worldSize;
-        this.gameEndingTask = new GameEndingTask(this.plugin);
-        this.huntedRunnable = new PersistentMessageRunnable(this.plugin, this, PersistentMessage.HUNTED);
-        this.hunterRunnable = new PersistentMessageRunnable(this.plugin, this, PersistentMessage.HUNTER);
-        this.compassLocationRunnable = new CompassLocationRunnable(this.plugin, this);
     }
 
     @Override
@@ -77,10 +78,7 @@ public class PlayingState implements GameState {
 
         Location spawningLocation = overworld.getSpawnLocation();
         for (Player player : this.plugin.getServer().getOnlinePlayers()) {
-            player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
-            player.setFoodLevel(20);
-            player.setSaturation(5);
-            player.setExhaustion(0);
+            PlayerUtil.resetPlayer(player);
             player.teleport(spawningLocation);
             if (compassIsEnabled) {
                 player.getInventory().addItem(new ItemStack(Material.COMPASS));
@@ -116,17 +114,7 @@ public class PlayingState implements GameState {
             this.compassLocationRunnable.cancel();
         }
 
-        for (Player player : this.plugin.getServer().getOnlinePlayers()) {
-            player.getInventory().clear();
-            Iterator<Advancement> advancementIterator = this.plugin.getServer().advancementIterator(); // Bad, but this is the only way to do this.
-            while (advancementIterator.hasNext()) {
-                Advancement advancementToCheck = advancementIterator.next();
-                AdvancementProgress advancementProgress = player.getAdvancementProgress(advancementToCheck);
-                for (String criteria : advancementProgress.getAwardedCriteria()) {
-                    advancementProgress.revokeCriteria(criteria);
-                }
-            }
-        }
+        PlayerUtil.resetAllPlayers();
 
         MVWorldManager mvWorldManager = ((MultiverseCore) this.plugin.getServer().getPluginManager().getPlugin("Multiverse-Core")).getMVWorldManager();
 

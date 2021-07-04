@@ -6,8 +6,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import xyz.regulad.advancementhunt.AdvancementHunt;
 import xyz.regulad.advancementhunt.exceptions.GameNotStartedException;
-import xyz.regulad.advancementhunt.gamestate.GameEndReason;
-import xyz.regulad.advancementhunt.gamestate.PlayingState;
+import xyz.regulad.advancementhunt.game.GameEndReason;
+import xyz.regulad.advancementhunt.game.states.PlayingState;
 
 public class PlayerAdvancementDoneListener implements Listener {
 

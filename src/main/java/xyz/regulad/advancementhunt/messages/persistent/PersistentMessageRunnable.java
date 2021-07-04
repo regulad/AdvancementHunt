@@ -1,9 +1,10 @@
-package xyz.regulad.advancementhunt.messages;
+package xyz.regulad.advancementhunt.messages.persistent;
 
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import xyz.regulad.advancementhunt.AdvancementHunt;
-import xyz.regulad.advancementhunt.gamestate.PlayingState;
+import xyz.regulad.advancementhunt.game.states.PlayingState;
+import xyz.regulad.advancementhunt.messages.Message;
 
 public class PersistentMessageRunnable extends BukkitRunnable {
     private final AdvancementHunt plugin;
