@@ -6,7 +6,7 @@ The objective of the game is to obtain a certain advancement within the time lim
 
 There are two teams, the Hunters and the Hunted.
 
-At the beginning of the game, the Hunted will recieve the name of an advancement and are tasked with completing it. 
+At the beginning of the game, the Hunted will recieve the name of an advancement and are tasked with completing it.
 
 They must first figure out what the advancement is and then obtain it.
 
@@ -25,11 +25,11 @@ Game stats are logged and can be accessed via PlaceholderAPI placeholders.
 3. Spigot 1.13+
 
 Optional plugins:
-   * Multiverse-NetherPortals
+* Multiverse-NetherPortals
 
 ## Setup
 
-AdvancementHunt is ready to go out of the box. 
+AdvancementHunt is ready to go out of the box.
 
 ## Use
 
@@ -57,5 +57,62 @@ AdvancementHunt is ready to go out of the box.
 Example:
 
 ```
-%ah_time% | %ah_heading%
+%ah_time% | %ah_advancement%
 ```
+
+Will produce:
+
+```
+10:10 | Stone Age
+```
+
+(Provided there are 10 minutes and 10 seconds left, and the current advancement is Stone Age)
+
+## Developers
+
+### Maven
+
+Insert the following snippets into your POM.xml.
+
+For the repository:
+
+```xml
+<repositories>
+    ...
+    <repository>
+        <id>regulad-releases</id>
+        <url>https://nexus.regulad.xyz/repository/maven-releases/</url>
+    </repository>
+    ...
+</repositories>
+```
+
+For the dependency:
+
+```xml
+<dependencies>
+    ...
+    <dependency>
+        <groupId>xyz.regulad.advancementhunt</groupId>
+        <artifactId>AdvancementHunt</artifactId>
+        <version>{version}</version>
+    </dependency>
+    ...
+</dependencies>
+```
+
+Replace `{version}` with the current version. You can see the current version below.
+
+![Current Version](https://img.shields.io/github/v/release/regulad/AdvancementHunt)
+
+### Use
+
+You can get the instance of the AdvancementHunt plugin like any other plugin.
+
+```java
+final AdvancementHunt plugin = (AdvancementHunt) Bukkit.getServer().getPluginManager().getPlugin("AdvancementHunt");
+```
+
+If you want to change the game state, see the `startGame()` or `endGame()` methods of `xyz.regulad.advancementhunt.AdvancementHunt`.
+
+If you only want to listen to events, look at the events `xyz.regulad.advancementhunt.events.gamestate.PreGameStateChangeEvent` or `xyz.regulad.advancementhunt.events.gamestate.PostGameStateChangeEvent`.
