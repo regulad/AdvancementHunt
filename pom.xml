@@ -11,6 +11,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    <scm>
+        <url>https://github.com/regulad/AdvancementHunt.git</url>
+    </scm>
     <build>
         <defaultGoal>clean package</defaultGoal>
         <resources>
@@ -56,6 +59,16 @@
             </plugin>
         </plugins>
     </build>
+    <distributionManagement>
+        <repository>
+            <id>regulad-releases</id>
+            <url>https://nexus.regulad.xyz/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>regulad-snapshots</id>
+            <url>https://nexus.regulad.xyz/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
     <repositories>
         <repository>
             <id>spigot-repo</id>
