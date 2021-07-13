@@ -4,7 +4,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import xyz.regulad.AdvancementHunt.AdvancementHunt;
-import xyz.regulad.AdvancementHunt.database.PlayerStats;
+import xyz.regulad.AdvancementHunt.database.stats.PlayerStats;
+import xyz.regulad.AdvancementHunt.database.stats.StatsColumn;
 import xyz.regulad.AdvancementHunt.exceptions.GameNotStartedException;
 import xyz.regulad.AdvancementHunt.game.GameEndReason;
 import xyz.regulad.AdvancementHunt.game.states.PlayingState;
@@ -24,10 +25,10 @@ public class PlayerDeathListener implements Listener {
 
             if (event.getEntity().getKiller() != null) {
                 PlayerStats killerStats = this.plugin.getPlayerStats(event.getEntity().getKiller());
-                killerStats.setKills(killerStats.getKills() + 1);
+                killerStats.updateColumn(StatsColumn.KILLS, killerStats.getColumn(StatsColumn.KILLS) + 1);
             }
             PlayerStats deadStats = this.plugin.getPlayerStats(event.getEntity());
-            deadStats.setDeaths(deadStats.getDeaths() + 1);
+            deadStats.updateColumn(StatsColumn.DEATHS, deadStats.getColumn(StatsColumn.DEATHS) + 1);
 
             if (playingState.fleeingPlayer.equals(event.getEntity())) {
                 try {

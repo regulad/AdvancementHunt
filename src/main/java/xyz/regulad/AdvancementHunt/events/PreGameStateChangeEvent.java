@@ -9,17 +9,17 @@ public class PreGameStateChangeEvent extends GameStateChangeEvent implements Can
     private static final HandlerList handlers = new HandlerList();
     private boolean cancelled = false;
 
-    @Override
-    public @NotNull HandlerList getHandlers() {
-        return handlers;
+    public PreGameStateChangeEvent(GameState oldGameState, GameState newGameState) {
+        super(oldGameState, newGameState);
     }
 
     public static @NotNull HandlerList getHandlerList() {
         return handlers;
     }
 
-    public PreGameStateChangeEvent(GameState oldGameState, GameState newGameState) {
-        super(oldGameState, newGameState);
+    @Override
+    public @NotNull HandlerList getHandlers() {
+        return handlers;
     }
 
     @Override

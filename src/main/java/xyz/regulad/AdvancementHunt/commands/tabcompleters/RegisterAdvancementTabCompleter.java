@@ -27,7 +27,7 @@ public class RegisterAdvancementTabCompleter implements TabCompleter {
                 Iterator<Advancement> advancementIterator = this.plugin.getServer().advancementIterator();
                 while (advancementIterator.hasNext()) {
                     Advancement advancement = advancementIterator.next();
-                    advancementList.add(advancement.toString());
+                    advancementList.add(advancement.getKey().toString());
                 }
                 return advancementList;
             case 2: // Time

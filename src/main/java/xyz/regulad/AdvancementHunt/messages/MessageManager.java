@@ -22,8 +22,8 @@ public class MessageManager {
     }
 
     public void dispatchMessage(Player recipient, Message message) {
-        List<Map<?, ?>> listOfMessages = this.plugin.getConfig().getMapList(message.getKey());
         Audience audience = this.plugin.getBukkitAudiences().player(recipient);
+        List<Map<?, ?>> listOfMessages = this.plugin.getConfig().getMapList(message.getKey());
         for (Map<?, ?> messageMap : listOfMessages) {
             String sendType = (String) messageMap.get("send_type");
             String messageToSend = (String) messageMap.get("message");

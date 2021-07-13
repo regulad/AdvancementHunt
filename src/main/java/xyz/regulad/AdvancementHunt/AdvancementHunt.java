@@ -6,6 +6,7 @@ import org.bukkit.advancement.Advancement;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import xyz.regulad.AdvancementHunt.commands.executors.GameendCommand;
 import xyz.regulad.AdvancementHunt.commands.executors.GamestartCommand;
 import xyz.regulad.AdvancementHunt.commands.executors.RegisterAdvancementCommand;
@@ -15,8 +16,8 @@ import xyz.regulad.AdvancementHunt.commands.tabcompleters.RegisterAdvancementTab
 import xyz.regulad.AdvancementHunt.commands.tabcompleters.RegisterSeedTabCompleter;
 import xyz.regulad.AdvancementHunt.database.AdvancementManager;
 import xyz.regulad.AdvancementHunt.database.ConnectionType;
-import xyz.regulad.AdvancementHunt.database.PlayerStats;
 import xyz.regulad.AdvancementHunt.database.SeedManager;
+import xyz.regulad.AdvancementHunt.database.stats.PlayerStats;
 import xyz.regulad.AdvancementHunt.events.PostGameStateChangeEvent;
 import xyz.regulad.AdvancementHunt.events.PreGameStateChangeEvent;
 import xyz.regulad.AdvancementHunt.exceptions.GameAlreadyStartedException;
@@ -32,6 +33,7 @@ import xyz.regulad.AdvancementHunt.listener.PlayerDeathListener;
 import xyz.regulad.AdvancementHunt.messages.MessageManager;
 import xyz.regulad.AdvancementHunt.placeholders.AdvancementHuntPlaceholders;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -39,19 +41,18 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 
-
+/**
+ * The main class. All API methods should be called via an instance.
+ */
 public final class AdvancementHunt extends JavaPlugin {
-    private Connection connection = null;
-    private ConnectionType connectionType = null;
-    private BukkitAudiences bukkitAudiences = null;
-
-    private GameState currentGameState = new IdleState(this, GameEndReason.NONE);
-
     private final SeedManager seedManager = new SeedManager(this);
     private final AdvancementManager advancementManager = new AdvancementManager(this);
     private final MessageManager messageManager = new MessageManager(this);
-
     private final Metrics metrics = new Metrics(this, 11903); // If you make a fork of this plugin, you'll likely want to replace this.
+    private Connection connection = null;
+    private ConnectionType connectionType = null;
+    private BukkitAudiences bukkitAudiences = null;
+    private GameState currentGameState = new IdleState(this, GameEndReason.NONE);
     // Stupid, but placeholder access has forced my hand.
 
     @Override
@@ -63,31 +64,41 @@ public final class AdvancementHunt extends JavaPlugin {
         this.saveDefaultConfig();
 
         // Database configuration
-        if (this.getConfig().getString("db.type").equalsIgnoreCase("mysql")) {
-            this.connectionType = ConnectionType.MYSQL;
-            try {
-                String jdbcUri = "jdbc:mysql://" + this.getConfig().getString("db.host") + ":" + this.getConfig().getInt("db.port") + "/" + this.getConfig().getString("db.name") + this.getConfig().getString("db.options");
-                this.connection = DriverManager.getConnection(jdbcUri, this.getConfig().getString("db.user"), this.getConfig().getString("db.passwd"));
-                this.getLogger().info("Successfully connected to the MySQL database at " + this.getConfig().getString("db.host") + ":" + this.getConfig().getInt("db.port"));
-            } catch (SQLException exception) {
-                this.getLogger().severe(exception.getMessage());
+        switch (this.getConfig().getString("db.type")) {
+            case "mysql":
+                this.connectionType = ConnectionType.MYSQL;
+                break;
+            case "sqlite":
+                this.connectionType = ConnectionType.SQLITE;
+                break;
+            default:
+                this.getLogger().severe("Invalid database type!");
                 this.getServer().getPluginManager().disablePlugin(this);
                 return;
-            }
-        } else if (this.getConfig().getString("db.type").equalsIgnoreCase("sqlite")) {
-            this.connectionType = ConnectionType.SQLITE;
-            try {
-                this.connection = DriverManager.getConnection("jdbc:sqlite:" + this.getDataFolder().getAbsolutePath() + (System.getProperty("os.name").toLowerCase().contains("win") ? "\\" : "/") + this.getConfig().getString("db.filename"));
-                this.getLogger().info("Successfully connected to the SQLite database at " + this.getDataFolder().getAbsolutePath() + (System.getProperty("os.name").toLowerCase().contains("win") ? "\\" : "/") + this.getConfig().getString("db.filename"));
-            } catch (SQLException exception) {
-                this.getLogger().severe(exception.getMessage());
-                this.getServer().getPluginManager().disablePlugin(this);
-                return;
-            }
-        } else {
-            this.getLogger().severe("Invalid database type!");
-            this.getServer().getPluginManager().disablePlugin(this);
-            return;
+        }
+
+        switch (this.connectionType) {
+            case MYSQL:
+                try {
+                    String jdbcUri = "jdbc:mysql://" + this.getConfig().getString("db.host") + ":" + this.getConfig().getInt("db.port") + "/" + this.getConfig().getString("db.name") + this.getConfig().getString("db.options");
+                    this.connection = DriverManager.getConnection(jdbcUri, this.getConfig().getString("db.user"), this.getConfig().getString("db.passwd"));
+                    this.getLogger().info("Successfully connected to the MySQL database at " + this.getConfig().getString("db.host") + ":" + this.getConfig().getInt("db.port"));
+                } catch (SQLException exception) {
+                    this.getLogger().severe(exception.getMessage());
+                    this.getServer().getPluginManager().disablePlugin(this);
+                    return;
+                }
+                break;
+            case SQLITE:
+                try {
+                    final @NotNull File sqliteFile = new File(this.getDataFolder(), this.getConfig().getString("db.filename"));
+                    this.connection = DriverManager.getConnection("jdbc:sqlite:" + sqliteFile.getPath());
+                    this.getLogger().info("Successfully connected to the SQLite database at " + sqliteFile.getPath());
+                } catch (SQLException exception) {
+                    this.getLogger().severe(exception.getMessage());
+                    this.getServer().getPluginManager().disablePlugin(this);
+                    return;
+                }
         }
 
         // Write tables
@@ -168,11 +179,13 @@ public final class AdvancementHunt extends JavaPlugin {
         return new PlayerStats(player, this);
     }
 
-    public void startGame(Player fleeingPlayer, ArrayList<Player> huntingPlayers, Advancement goalAdvancement, Instant endTime, String worldSeed, double worldSize) throws GameAlreadyStartedException {
+    /**
+     * @deprecated
+     */
+    @Deprecated
+    public void startGame(PlayingState newPlayingState) throws GameAlreadyStartedException {
         if (this.currentGameState instanceof IdleState) {
-            PlayingState newPlayingState = new PlayingState(this, fleeingPlayer, huntingPlayers, goalAdvancement, endTime, worldSeed, worldSize);
             IdleState currentIdleState = (IdleState) this.currentGameState;
-
             PreGameStateChangeEvent preGameStateChangeEvent = new PreGameStateChangeEvent(currentIdleState, newPlayingState);
             this.getServer().getPluginManager().callEvent(preGameStateChangeEvent);
             if (!preGameStateChangeEvent.isCancelled()) {
@@ -184,11 +197,19 @@ public final class AdvancementHunt extends JavaPlugin {
         } else {
             throw new GameAlreadyStartedException("A game has already started.");
         }
+
     }
 
-    public void endGame(GameEndReason reason) throws GameNotStartedException {
+    public void startGame(Player fleeingPlayer, ArrayList<Player> huntingPlayers, Advancement goalAdvancement, Instant endTime, String worldSeed, double worldSize) throws GameAlreadyStartedException {
+        this.startGame(new PlayingState(this, fleeingPlayer, huntingPlayers, goalAdvancement, endTime, worldSeed, worldSize));
+    }
+
+    /**
+     * @deprecated
+     */
+    @Deprecated
+    public void endGame(IdleState newIdleState) throws GameNotStartedException {
         if (this.currentGameState instanceof PlayingState) {
-            IdleState newIdleState = new IdleState(this, reason);
             PlayingState currentPlayingState = (PlayingState) this.currentGameState;
 
             PreGameStateChangeEvent preGameStateChangeEvent = new PreGameStateChangeEvent(currentPlayingState, newIdleState);
@@ -202,6 +223,10 @@ public final class AdvancementHunt extends JavaPlugin {
         } else {
             throw new GameNotStartedException("A game is not ongoing.");
         }
+    }
+
+    public void endGame(GameEndReason reason) throws GameNotStartedException {
+        this.endGame(new IdleState(this, reason));
     }
 
     public SeedManager getSeedManager() {

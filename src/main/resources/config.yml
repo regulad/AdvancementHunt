@@ -17,11 +17,6 @@ db:
   passwd: ''
 game:
   compass: true # Whether or not a compass will be granted to hunters that will point to the hunted.
-  world:
-    nether: true # If the nether should be generated with the overworld.
-    end: true # If the end should be generated with the overworld.
-    # Please note that enabling either of these options will only create/delete the worlds.
-    # If you want players to be able to go inbetween the worlds, Multiverse-NetherPortals must be installed.
 
 # ----------------------------------------------------------------------------
 # AdvancementHunt Messages
