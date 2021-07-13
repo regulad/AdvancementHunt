@@ -3,6 +3,7 @@ package xyz.regulad.AdvancementHunt.placeholders;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import xyz.regulad.AdvancementHunt.AdvancementHunt;
+import xyz.regulad.AdvancementHunt.database.stats.StatsColumn;
 import xyz.regulad.AdvancementHunt.game.states.PlayingState;
 import xyz.regulad.AdvancementHunt.util.AdvancementUtil;
 
@@ -53,25 +54,25 @@ public class AdvancementHuntPlaceholders extends PlaceholderExpansion {
         switch (placeholder) {
             case "wins":
                 if (player != null) {
-                    return String.valueOf(this.plugin.getPlayerStats(player).getWins());
+                    return String.valueOf(this.plugin.getPlayerStats(player).getColumn(StatsColumn.WINS));
                 } else {
                     return "";
                 }
             case "losses":
                 if (player != null) {
-                    return String.valueOf(this.plugin.getPlayerStats(player).getLosses());
+                    return String.valueOf(this.plugin.getPlayerStats(player).getColumn(StatsColumn.LOSSES));
                 } else {
                     return "";
                 }
             case "kills":
                 if (player != null) {
-                    return String.valueOf(this.plugin.getPlayerStats(player).getKills());
+                    return String.valueOf(this.plugin.getPlayerStats(player).getColumn(StatsColumn.KILLS));
                 } else {
                     return "";
                 }
             case "deaths":
                 if (player != null) {
-                    return String.valueOf(this.plugin.getPlayerStats(player).getDeaths());
+                    return String.valueOf(this.plugin.getPlayerStats(player).getColumn(StatsColumn.DEATHS));
                 } else {
                     return "";
                 }

@@ -6,15 +6,15 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.javatuples.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.regulad.AdvancementHunt.AdvancementHunt;
 import xyz.regulad.AdvancementHunt.exceptions.GameAlreadyStartedException;
+import xyz.regulad.AdvancementHunt.util.TimeUtil;
 
-import java.sql.SQLException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 
 public class GamestartCommand implements CommandExecutor {
     private final AdvancementHunt plugin;
@@ -29,78 +29,57 @@ public class GamestartCommand implements CommandExecutor {
             sender.sendMessage("You cannot play the game with only one player.");
             return true;
         } else {
-            if (args.length == 1) {
-                Player huntedPlayer = this.plugin.getServer().getPlayer(args[0]);
-                if (huntedPlayer == null) return false; // Player isn't real. Oops!
-                Collection<? extends Player> onlinePlayers = this.plugin.getServer().getOnlinePlayers();
-                ArrayList<Player> hunterPlayers = new ArrayList<>();
-
-                for (Player player : onlinePlayers) {
-                    if (!player.equals(huntedPlayer)) hunterPlayers.add(player);
-                }
-
-                final HashMap<Advancement, Integer> advancementHashMap;
-                final HashMap<String, Integer> seedHashMap;
-                try {
-                    advancementHashMap = this.plugin.getAdvancementManager().getAdvancement();
-                    seedHashMap = this.plugin.getSeedManager().getSeed();
-
-                    try {
-                        this.plugin.startGame(huntedPlayer, hunterPlayers, (Advancement) advancementHashMap.keySet().toArray()[0], Instant.ofEpochMilli(System.currentTimeMillis() + (Integer) advancementHashMap.values().toArray()[0] * 1000), (String) seedHashMap.keySet().toArray()[0], (Double) seedHashMap.values().toArray()[0]);
-                        sender.sendMessage("The game has started.");
-                    } catch (GameAlreadyStartedException exception) {
-                        sender.sendMessage("The game cannot be started, one is already ongoing.");
+            final @NotNull Player huntedPlayer;
+            final @Nullable Pair<@Nullable Advancement, Integer> advancement;
+            final @Nullable Pair<@NotNull String, Integer> seed;
+            switch (args.length) {
+                case 0:
+                    if (sender instanceof Player) {
+                        huntedPlayer = (Player) sender;
+                    } else {
+                        return false; // Not a Player, and one was not provided.
                     }
-                } catch (SQLException exception) {
-                    this.plugin.getLogger().severe(exception.getMessage());
-                    sender.sendMessage("§4AdvancementHunt was unable to read the database. Please check the console!");
-                }
-                return true;
-            } else if (args.length == 3) {
-                Player huntedPlayer = this.plugin.getServer().getPlayer(args[0]);
-                if (huntedPlayer == null) return false; // Player isn't real. Oops!
-                Collection<? extends Player> onlinePlayers = this.plugin.getServer().getOnlinePlayers();
-                ArrayList<Player> hunterPlayers = new ArrayList<>();
+                    advancement = this.plugin.getAdvancementManager().getAdvancement();
+                    seed = this.plugin.getSeedManager().getSeed();
+                    break;
+                case 1:
+                    huntedPlayer = this.plugin.getServer().getPlayer(args[0]);
+                    advancement = this.plugin.getAdvancementManager().getAdvancement();
+                    seed = this.plugin.getSeedManager().getSeed();
+                    break;
+                case 3:
+                    huntedPlayer = this.plugin.getServer().getPlayer(args[0]);
+                    advancement = new Pair<>(this.plugin.getServer().getAdvancement(NamespacedKey.minecraft(args[1].replaceFirst("minecraft:", ""))), Integer.valueOf(args[2]));
+                    seed = this.plugin.getSeedManager().getSeed();
+                    break;
+                case 5:
+                    huntedPlayer = this.plugin.getServer().getPlayer(args[0]);
+                    advancement = new Pair<>(this.plugin.getServer().getAdvancement(NamespacedKey.minecraft(args[1].replaceFirst("minecraft:", ""))), Integer.valueOf(args[2]));
+                    seed = new Pair<>(args[3], Integer.valueOf(args[4]));
+                    break;
+                default:
+                    return false;
+            }
 
-                for (Player player : onlinePlayers) {
-                    if (!player.equals(huntedPlayer)) hunterPlayers.add(player);
-                }
+            Collection<? extends Player> onlinePlayers = this.plugin.getServer().getOnlinePlayers();
+            ArrayList<Player> hunterPlayers = new ArrayList<>();
 
-                final HashMap<String, Integer> seedHashMap;
+            for (Player player : onlinePlayers) {
+                if (!player.equals(huntedPlayer)) hunterPlayers.add(player);
+            }
+
+            if (advancement == null || seed == null) {
+                sender.sendMessage("§4AdvancementHunt was unable to read the database. Please check the console!");
+            } else {
                 try {
-                    seedHashMap = this.plugin.getSeedManager().getSeed();
-
-                    try {
-                        this.plugin.startGame(huntedPlayer, hunterPlayers, this.plugin.getServer().getAdvancement(NamespacedKey.minecraft(args[1])), Instant.ofEpochMilli(System.currentTimeMillis() + Integer.parseInt(args[2]) * 60_000L), (String) seedHashMap.keySet().toArray()[0], (Double) seedHashMap.values().toArray()[0]);
-                        sender.sendMessage("The game has started.");
-                    } catch (GameAlreadyStartedException exception) {
-                        sender.sendMessage("The game cannot be started, one is already ongoing.");
-                    }
-                } catch (SQLException exception) {
-                    this.plugin.getLogger().severe(exception.getMessage());
-                    sender.sendMessage("§4AdvancementHunt was unable to read the database. Please check the console!");
-                }
-                return true;
-            } else if (args.length == 5) {
-                Player huntedPlayer = this.plugin.getServer().getPlayer(args[0]);
-                if (huntedPlayer == null) return false; // Player isn't real. Oops!
-                Collection<? extends Player> onlinePlayers = this.plugin.getServer().getOnlinePlayers();
-                ArrayList<Player> hunterPlayers = new ArrayList<>();
-
-                for (Player player : onlinePlayers) {
-                    if (!player.equals(huntedPlayer)) hunterPlayers.add(player);
-                }
-
-                try {
-                    this.plugin.startGame(huntedPlayer, hunterPlayers, this.plugin.getServer().getAdvancement(NamespacedKey.minecraft(args[1])), Instant.ofEpochMilli(System.currentTimeMillis() + Integer.parseInt(args[2]) * 60_000L), args[3], Double.parseDouble(args[4]));
+                    this.plugin.startGame(huntedPlayer, hunterPlayers, advancement.getValue0(), TimeUtil.instantInFuture(advancement.getValue1() * 60_000), seed.getValue0(), seed.getValue1());
                     sender.sendMessage("The game has started.");
                 } catch (GameAlreadyStartedException exception) {
                     sender.sendMessage("The game cannot be started, one is already ongoing.");
                 }
-                return true;
-            } else {
-                return false;
             }
+
+            return true;
         }
     }
 }

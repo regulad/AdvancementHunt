@@ -1,12 +1,17 @@
 package xyz.regulad.AdvancementHunt.database;
 
+import org.javatuples.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.regulad.AdvancementHunt.AdvancementHunt;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 
+/**
+ * An interface for pulling seeds from the database.
+ */
 public class SeedManager {
     private final AdvancementHunt plugin;
 
@@ -14,33 +19,39 @@ public class SeedManager {
         this.plugin = plugin;
     }
 
-    public HashMap<String, Integer> getSeed() throws SQLException { // I don't like returning a HashMap, but we don't have tuples.
-        PreparedStatement preparedStatement = null;
-
-        switch (this.plugin.getConnectionType()) {
-            case MYSQL:
-                preparedStatement = this.plugin.getConnection().prepareStatement("SELECT * FROM " + this.plugin.getConfig().getString("db.prefix") + "worlds ORDER BY RAND() LIMIT 1;");
-                break;
-            case SQLITE:
-                preparedStatement = this.plugin.getConnection().prepareStatement("SELECT * FROM " + this.plugin.getConfig().getString("db.prefix") + "worlds ORDER BY RANDOM() LIMIT 1;");
-                break;
-        }
-
+    public @Nullable Pair<@NotNull String, Integer> getSeed() {
         try {
-            ResultSet resultSet = preparedStatement.executeQuery();
+            @Nullable PreparedStatement preparedStatement = null; // Even though this switch is exhaustive, Intellij insists it isn't.
+            switch (this.plugin.getConnectionType()) {
+                case MYSQL:
+                    preparedStatement = this.plugin.getConnection().prepareStatement("SELECT * FROM " + this.plugin.getConfig().getString("db.prefix") + "worlds ORDER BY RAND() LIMIT 1;");
+                    break;
+                case SQLITE:
+                    preparedStatement = this.plugin.getConnection().prepareStatement("SELECT * FROM " + this.plugin.getConfig().getString("db.prefix") + "worlds ORDER BY RANDOM() LIMIT 1;");
+                    break;
+            }
 
-            HashMap<String, Integer> outputHashmap = new HashMap<>();
-            outputHashmap.put(resultSet.getString("seed"), resultSet.getInt("border"));
-            return outputHashmap;
-        } catch (SQLException ignored) {
+            final @NotNull ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (this.plugin.getConnectionType() == ConnectionType.MYSQL) {
+                resultSet.next();
+            }
+
+            return new Pair<>(resultSet.getString("seed"), resultSet.getInt("border"));
+        } catch (SQLException sqlException) {
+            sqlException.printStackTrace();
             return null;
         }
     }
 
-    public void putSeed(String seed, int border) throws SQLException {
-        PreparedStatement preparedStatement = this.plugin.getConnection().prepareStatement("INSERT INTO " + this.plugin.getConfig().getString("db.prefix") + "worlds VALUES(?,?);");
-        preparedStatement.setString(1, seed);
-        preparedStatement.setInt(2, border);
-        preparedStatement.execute();
+    public void putSeed(String seed, int border) {
+        try {
+            PreparedStatement preparedStatement = this.plugin.getConnection().prepareStatement("INSERT INTO " + this.plugin.getConfig().getString("db.prefix") + "worlds VALUES(?,?);");
+            preparedStatement.setString(1, seed);
+            preparedStatement.setInt(2, border);
+            preparedStatement.execute();
+        } catch (SQLException sqlException) {
+            sqlException.printStackTrace();
+        }
     }
 }

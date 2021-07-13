@@ -19,14 +19,14 @@ public class IdleState implements GameState {
     public void start() {
         Location startingLocation = this.plugin.getServer().getWorlds().get(0).getSpawnLocation();
         for (Player player : this.plugin.getServer().getOnlinePlayers()) {
-            PlayerUtil.resetPlayer(player);
+            PlayerUtil.resetAllAdvancementProgresses(player);
             player.teleport(startingLocation);
         }
     }
 
     @Override
     public void end() {
-        PlayerUtil.resetAllPlayers();
+        PlayerUtil.resetAllAdvancementProgressesForAllPlayers();
     }
 
     public GameEndReason getGameEndReason() {

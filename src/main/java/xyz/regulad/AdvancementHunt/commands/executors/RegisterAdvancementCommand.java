@@ -8,8 +8,6 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import xyz.regulad.AdvancementHunt.AdvancementHunt;
 
-import java.sql.SQLException;
-
 public class RegisterAdvancementCommand implements CommandExecutor {
     private final AdvancementHunt plugin;
 
@@ -20,15 +18,10 @@ public class RegisterAdvancementCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length != 2) return false; // Wrong number of arguments!
-        Advancement possibleAdvancement = this.plugin.getServer().getAdvancement(NamespacedKey.minecraft(args[0]));
+        Advancement possibleAdvancement = this.plugin.getServer().getAdvancement(NamespacedKey.minecraft(args[0].replaceFirst("minecraft:", "")));
         if (possibleAdvancement == null) return false; // Bad advancement!
         int advancementTime = Integer.parseInt(args[1]);
-        try {
-            this.plugin.getAdvancementManager().putAdvancement(possibleAdvancement, advancementTime);
-        } catch (SQLException exception) {
-            this.plugin.getLogger().severe(exception.getMessage());
-            sender.sendMessage("§4AdvancementHunt was unable to read the database. Please check the console!");
-        }
+        this.plugin.getAdvancementManager().putAdvancement(possibleAdvancement, advancementTime);
         return true; // All is good!
     }
 }

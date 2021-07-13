@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>xyz.regulad</groupId>
     <artifactId>AdvancementHunt</artifactId>
-    <version>1.1.1</version>
+    <version>1.2.0</version>
     <packaging>jar</packaging>
     <name>AdvancementHunt</name>
     <properties>
@@ -63,6 +63,7 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.2.4</version>
                 <configuration>
+                    <minimizeJar>true</minimizeJar>
                     <relocations>
                         <relocation>
                             <pattern>org.bstats</pattern>
@@ -71,6 +72,14 @@
                         <relocation>
                             <pattern>net.kyori</pattern>
                             <shadedPattern>xyz.regulad.AdvancementHunt.dependencies.net.kyori</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.jetbrains</pattern>
+                            <shadedPattern>xyz.regulad.AdvancementHunt.dependencies.org.jetbrains</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.javatuples</pattern>
+                            <shadedPattern>xyz.regulad.AdvancementHunt.dependencies.org.javatuples</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -123,8 +132,19 @@
         <dependency>
             <groupId>com.onarandombox.multiversecore</groupId>
             <artifactId>Multiverse-Core</artifactId>
+            <version>4.3.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.onarandombox.multiversenetherportals</groupId>
+            <artifactId>Multiverse-NetherPortals</artifactId>
+            <version>4.2.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.onarandombox.multiverseinventories</groupId>
+            <artifactId>Multiverse-Inventories</artifactId>
             <version>4.2.2</version>
-            <type>jar</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -153,6 +173,18 @@
             <groupId>net.kyori</groupId>
             <artifactId>adventure-platform-bukkit</artifactId>
             <version>4.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>21.0.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.javatuples</groupId>
+            <artifactId>javatuples</artifactId>
+            <version>1.2</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

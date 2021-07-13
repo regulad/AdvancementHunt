@@ -4,7 +4,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import xyz.regulad.AdvancementHunt.AdvancementHunt;
-import xyz.regulad.AdvancementHunt.database.PlayerStats;
+import xyz.regulad.AdvancementHunt.database.stats.PlayerStats;
+import xyz.regulad.AdvancementHunt.database.stats.StatsColumn;
 import xyz.regulad.AdvancementHunt.events.PostGameStateChangeEvent;
 import xyz.regulad.AdvancementHunt.events.PreGameStateChangeEvent;
 import xyz.regulad.AdvancementHunt.game.states.IdleState;
@@ -40,31 +41,31 @@ public class GameStateChangeListener implements Listener {
                 case HUNTED_WIN:
                     // Give the runner the win
                     PlayerStats winnerStats = this.plugin.getPlayerStats(oldPlayingState.fleeingPlayer);
-                    winnerStats.setWins(winnerStats.getWins() + 1);
+                    winnerStats.updateColumn(StatsColumn.WINS, winnerStats.getColumn(StatsColumn.WINS) + 1);
                     this.plugin.getMessageManager().dispatchMessage(oldPlayingState.fleeingPlayer, Message.HUNTED_WIN);
                     // Give the hunters a loss
                     for (Player player : oldPlayingState.huntingPlayers) {
                         PlayerStats hunterStats = this.plugin.getPlayerStats(player);
-                        hunterStats.setLosses(hunterStats.getLosses() + 1);
+                        hunterStats.updateColumn(StatsColumn.LOSSES, hunterStats.getColumn(StatsColumn.LOSSES) + 1);
                         this.plugin.getMessageManager().dispatchMessage(player, Message.HUNTED_WIN);
                     }
                     break;
                 case HUNTER_WIN:
                     // Give the runner a loss
                     PlayerStats loserStats = this.plugin.getPlayerStats(oldPlayingState.fleeingPlayer);
-                    loserStats.setLosses(loserStats.getLosses() + 1);
+                    loserStats.updateColumn(StatsColumn.LOSSES, loserStats.getColumn(StatsColumn.LOSSES) + 1);
                     this.plugin.getMessageManager().dispatchMessage(oldPlayingState.fleeingPlayer, Message.HUNTER_WIN);
                     // Give the hunters a win
                     for (Player player : oldPlayingState.huntingPlayers) {
                         PlayerStats hunterStats = this.plugin.getPlayerStats(player);
-                        hunterStats.setWins(hunterStats.getWins() + 1);
+                        hunterStats.updateColumn(StatsColumn.WINS, hunterStats.getColumn(StatsColumn.WINS) + 1);
                         this.plugin.getMessageManager().dispatchMessage(player, Message.HUNTER_WIN);
                     }
                     break;
                 case HUNTED_LEAVE:
                     // The hunted left. Punish themmmmmmm!
                     PlayerStats huntedStats = this.plugin.getPlayerStats(oldPlayingState.fleeingPlayer);
-                    huntedStats.setLosses(huntedStats.getLosses() + 1);
+                    huntedStats.updateColumn(StatsColumn.LOSSES, huntedStats.getColumn(StatsColumn.LOSSES) + 1);
                     for (Player player : oldPlayingState.huntingPlayers) {
                         this.plugin.getMessageManager().dispatchMessage(player, Message.LEFT);
                     }
@@ -74,7 +75,7 @@ public class GameStateChangeListener implements Listener {
                     this.plugin.getMessageManager().dispatchMessage(oldPlayingState.fleeingPlayer, Message.LEFT);
                     for (Player player : oldPlayingState.leftPlayers) {
                         PlayerStats hunterStats = this.plugin.getPlayerStats(player);
-                        hunterStats.setLosses(hunterStats.getLosses() + 1);
+                        hunterStats.updateColumn(StatsColumn.LOSSES, hunterStats.getColumn(StatsColumn.LOSSES) + 1);
                     }
                     for (Player player : oldPlayingState.huntingPlayers) {
                         this.plugin.getMessageManager().dispatchMessage(player, Message.LEFT);
@@ -84,12 +85,12 @@ public class GameStateChangeListener implements Listener {
                     // Time is up.
                     // Give the runner a loss
                     PlayerStats huntedStats1 = this.plugin.getPlayerStats(oldPlayingState.fleeingPlayer);
-                    huntedStats1.setLosses(huntedStats1.getLosses() + 1);
+                    huntedStats1.updateColumn(StatsColumn.LOSSES, huntedStats1.getColumn(StatsColumn.LOSSES) + 1);
                     this.plugin.getMessageManager().dispatchMessage(oldPlayingState.fleeingPlayer, Message.TIME_UP);
                     // Give the hunters a loss, too
                     for (Player player : oldPlayingState.huntingPlayers) {
                         PlayerStats hunterStats = this.plugin.getPlayerStats(player);
-                        hunterStats.setLosses(hunterStats.getLosses() + 1);
+                        hunterStats.updateColumn(StatsColumn.LOSSES, hunterStats.getColumn(StatsColumn.LOSSES) + 1);
                         this.plugin.getMessageManager().dispatchMessage(player, Message.TIME_UP);
                     }
                     break;
