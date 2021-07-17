@@ -3,7 +3,7 @@ version: ${project.version}
 description: AdvancementHunt is a minigame plugin.
 author: regulad
 
-main: xyz.regulad.AdvancementHunt.AdvancementHunt
+main: quest.ender.AdvancementHunt.AdvancementHunt
 depend:
   - PlaceholderAPI
   - Multiverse-Core

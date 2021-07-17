@@ -92,7 +92,7 @@ For the dependency:
 <dependencies>
     ...
     <dependency>
-        <groupId>xyz.regulad</groupId>
+        <groupId>quest.ender</groupId>
         <artifactId>AdvancementHunt</artifactId>
         <version>{version}</version>
     </dependency>
@@ -102,7 +102,7 @@ For the dependency:
 
 Replace `{version}` with the current version. You can see the current version below. Don't include the "v".
 
-![Current Version](https://img.shields.io/github/v/release/regulad/AdvancementHunt)
+![Current Version](https://img.shields.io/github/v/release/EnderQuestMC/AdvancementHunt)
 
 ### Use
 
@@ -112,6 +112,6 @@ You can get the instance of the AdvancementHunt plugin like any other plugin.
 final AdvancementHunt plugin = (AdvancementHunt) Bukkit.getServer().getPluginManager().getPlugin("AdvancementHunt");
 ```
 
-If you want to change the game state, see the `startGame()` or `endGame()` methods of `xyz.regulad.AdvancementHunt.AdvancementHunt`.
+If you want to change the game state, see the `startGame()` or `endGame()` methods of `AdvancementHunt`.
 
-If you only want to listen to events, look at the events `xyz.regulad.AdvancementHunt.events.PreGameStateChangeEvent` or `xyz.regulad.AdvancementHunt.events.PostGameStateChangeEvent`.
+If you only want to listen to events, look at the events `PreGameStateChangeEvent` or `PostGameStateChangeEvent`.

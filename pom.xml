@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>xyz.regulad</groupId>
+    <groupId>quest.ender</groupId>
     <artifactId>AdvancementHunt</artifactId>
     <version>1.2.1</version>
     <packaging>jar</packaging>
@@ -12,7 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <scm>
-        <url>https://github.com/regulad/AdvancementHunt.git</url>
+        <url>https://github.com/EnderQuestMC/AdvancementHunt.git</url>
     </scm>
     <pluginRepositories>
         <pluginRepository>
