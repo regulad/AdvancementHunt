@@ -1,6 +1,13 @@
 package xyz.regulad.AdvancementHunt.messages;
 
+import org.bukkit.configuration.file.YamlConfiguration;
+
+/**
+ * Represents a message the plugin may display to players.
+ */
 public enum Message {
+    HUNTER_GAMESTART("messages.hunter_gamestart"),
+    HUNTED_GAMESTART("messages.hunted_gamestart"),
     HUNTER_PERSISTENT("messages.hunter_persistent"),
     HUNTED_PERSISTENT("messages.hunted_persistent"),
     HUNTER_WIN("messages.hunter_win"),
@@ -16,6 +23,9 @@ public enum Message {
         this.key = key;
     }
 
+    /**
+     * @return A {@link String} that is the key to the message in the plugin's main {@link YamlConfiguration}.
+     */
     public String getKey() {
         return this.key;
     }

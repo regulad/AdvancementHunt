@@ -20,9 +20,7 @@ public class PlayerDeathListener implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        if (this.plugin.getCurrentGameState() instanceof PlayingState) {
-            PlayingState playingState = (PlayingState) this.plugin.getCurrentGameState();
-
+        if (this.plugin.getCurrentGameState() instanceof PlayingState playingState) {
             if (event.getEntity().getKiller() != null) {
                 PlayerStats killerStats = this.plugin.getPlayerStats(event.getEntity().getKiller());
                 killerStats.updateColumn(StatsColumn.KILLS, killerStats.getColumn(StatsColumn.KILLS) + 1);

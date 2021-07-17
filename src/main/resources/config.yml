@@ -16,7 +16,15 @@ db:
   user: root
   passwd: ''
 game:
+  start_on_join: true # If the game should start when everybody has joined the server. (max amount of players)
+  max_to_zero: true # If the server's max player count should be set to zero while a game is ongoing.
+  startup: 5 # If a countdown should be displayed while a game is starting.
+  before: 5 # How long the pre-countdown should last. Players will be unable to move.
+  countdown: 10 # How long the countdown should last before the game starts. Players will be invulnerable, but be able to move.
   compass: true # Whether or not a compass will be granted to hunters that will point to the hunted.
+matchmaker: # For the MatchmakerBukkit bridge. Requires the plugin to be installed.
+  after_game: lobby # The game to be set to after a game is over.
+  rampdown: 15 # How long to wait after the game is over to send people to the game.
 
 # ----------------------------------------------------------------------------
 # AdvancementHunt Messages
@@ -30,10 +38,17 @@ game:
 # ----------------------------------------------------------------------------
 kick_message: "A game of AdvancementHunt is currently ongoing! Please check back later." # This message will be shown to users if they attempt to connect while a game is ongoing.
 messages:
+  hunter_gamestart:
+    - send_type: title
+      message: "Go!"
+      submessage: "Kill %ah_hunted%!"
+  hunted_gamestart:
+    - send_type: title
+      message: "Go! Get %ah_advancement%!"
   hunter_persistent: # This will appear during the whole game and be refreshed every second.
     - send_type: actionbar
       message: "%ah_time% | %ah_hunted%"
-  hunted_persistent: # This will appear during the whole game and be refreshed every second.
+  hunted_persistent: # This will appear during the whole game and bce refreshed every second.
     - send_type: actionbar
       message: "%ah_time% | %ah_advancement%"
   hunter_win:

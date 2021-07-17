@@ -1,6 +1,5 @@
 package xyz.regulad.AdvancementHunt;
 
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.command.PluginCommand;
@@ -26,10 +25,7 @@ import xyz.regulad.AdvancementHunt.game.GameEndReason;
 import xyz.regulad.AdvancementHunt.game.states.GameState;
 import xyz.regulad.AdvancementHunt.game.states.IdleState;
 import xyz.regulad.AdvancementHunt.game.states.PlayingState;
-import xyz.regulad.AdvancementHunt.listener.GameStateChangeListener;
-import xyz.regulad.AdvancementHunt.listener.PlayerAdvancementDoneListener;
-import xyz.regulad.AdvancementHunt.listener.PlayerConnectionListener;
-import xyz.regulad.AdvancementHunt.listener.PlayerDeathListener;
+import xyz.regulad.AdvancementHunt.listener.*;
 import xyz.regulad.AdvancementHunt.messages.MessageManager;
 import xyz.regulad.AdvancementHunt.placeholders.AdvancementHuntPlaceholders;
 
@@ -51,7 +47,6 @@ public final class AdvancementHunt extends JavaPlugin {
     private final Metrics metrics = new Metrics(this, 11903); // If you make a fork of this plugin, you'll likely want to replace this.
     private Connection connection = null;
     private ConnectionType connectionType = null;
-    private BukkitAudiences bukkitAudiences = null;
     private GameState currentGameState = new IdleState(this, GameEndReason.NONE);
     // Stupid, but placeholder access has forced my hand.
 
@@ -121,12 +116,11 @@ public final class AdvancementHunt extends JavaPlugin {
         }
 
         // Register listeners
+        this.getServer().getPluginManager().registerEvents(new CountdownListener(this), this);
         this.getServer().getPluginManager().registerEvents(new PlayerConnectionListener(this), this);
         this.getServer().getPluginManager().registerEvents(new PlayerAdvancementDoneListener(this), this);
         this.getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
         this.getServer().getPluginManager().registerEvents(new GameStateChangeListener(this), this);
-
-        this.bukkitAudiences = BukkitAudiences.create(this);
 
         // Register commands
         PluginCommand gamestartCommand = this.getCommand("gamestart");
@@ -155,11 +149,6 @@ public final class AdvancementHunt extends JavaPlugin {
             this.currentGameState = null;
         }
 
-        if (this.bukkitAudiences != null) {
-            this.bukkitAudiences.close();
-            this.bukkitAudiences = null;
-        }
-
         // Close the SQL connection
         if (this.connection != null) {
             try {
@@ -184,8 +173,7 @@ public final class AdvancementHunt extends JavaPlugin {
      */
     @Deprecated
     public void startGame(PlayingState newPlayingState) throws GameAlreadyStartedException {
-        if (this.currentGameState instanceof IdleState) {
-            IdleState currentIdleState = (IdleState) this.currentGameState;
+        if (this.currentGameState instanceof IdleState currentIdleState) {
             PreGameStateChangeEvent preGameStateChangeEvent = new PreGameStateChangeEvent(currentIdleState, newPlayingState);
             this.getServer().getPluginManager().callEvent(preGameStateChangeEvent);
             if (!preGameStateChangeEvent.isCancelled()) {
@@ -247,9 +235,5 @@ public final class AdvancementHunt extends JavaPlugin {
 
     public MessageManager getMessageManager() {
         return this.messageManager;
-    }
-
-    public BukkitAudiences getBukkitAudiences() {
-        return this.bukkitAudiences;
     }
 }

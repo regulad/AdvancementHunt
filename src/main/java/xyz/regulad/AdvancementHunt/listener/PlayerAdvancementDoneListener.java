@@ -20,8 +20,7 @@ public class PlayerAdvancementDoneListener implements Listener {
     @EventHandler
     public void onAdvancementIsDone(PlayerAdvancementDoneEvent event) {
         Player player = event.getPlayer();
-        if (this.plugin.getCurrentGameState() instanceof PlayingState) {
-            PlayingState playingState = (PlayingState) this.plugin.getCurrentGameState();
+        if (this.plugin.getCurrentGameState() instanceof PlayingState playingState) {
             if (playingState.fleeingPlayer.equals(player) && playingState.goalAdvancement.equals(event.getAdvancement())) {
                 try {
                     this.plugin.endGame(GameEndReason.HUNTED_WIN);

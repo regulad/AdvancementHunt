@@ -5,15 +5,13 @@ name: Java CI with Maven and Artifact
 
 on:
   push:
-    branches: [ rewrite ]
+    branches: [master]
   pull_request:
-    branches: [ rewrite ]
+    branches: [master]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - uses: actions/cache@v2.1.4
