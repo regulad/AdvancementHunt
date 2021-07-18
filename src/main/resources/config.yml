@@ -28,7 +28,9 @@ matchmaker: # For the MatchmakerBukkit bridge. Requires the plugin to be install
 
 # ----------------------------------------------------------------------------
 # AdvancementHunt Messages
-# You may use PlaceholderAPI placeholders in these messages.
+#
+# You may use PlaceholderAPI placeholders in these messages. Use "&" for codes.
+#
 # Each key should hold an array.
 #   Each item in the array should be an object.
 #     The object should have the following keys:
