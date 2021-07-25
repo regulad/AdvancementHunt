@@ -3,7 +3,7 @@ package quest.ender.AdvancementHunt.events;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-import quest.ender.AdvancementHunt.game.states.GameState;
+import quest.ender.AdvancementHunt.game.state.GameState;
 
 public class PreGameStateChangeEvent extends GameStateChangeEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();

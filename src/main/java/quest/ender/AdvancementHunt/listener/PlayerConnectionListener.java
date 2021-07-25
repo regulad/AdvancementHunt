@@ -19,9 +19,10 @@ import quest.ender.AdvancementHunt.events.PostGameStateChangeEvent;
 import quest.ender.AdvancementHunt.exceptions.BadGameStateException;
 import quest.ender.AdvancementHunt.exceptions.GameNotStartedException;
 import quest.ender.AdvancementHunt.game.GameEndReason;
-import quest.ender.AdvancementHunt.game.states.IdleState;
-import quest.ender.AdvancementHunt.game.states.PlayingState;
+import quest.ender.AdvancementHunt.game.state.IdleState;
+import quest.ender.AdvancementHunt.game.state.PlayingState;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -99,13 +100,13 @@ public class PlayerConnectionListener implements Listener {
             }
 
             try {
-                final @Nullable Pair<@Nullable Advancement, Integer> advancement = this.plugin.getAdvancementManager().getAdvancement();
-                final @Nullable Pair<@NotNull String, Integer> seed = this.plugin.getSeedManager().getSeed();
+                final @Nullable Pair<@Nullable Advancement, @NotNull Duration> advancement = this.plugin.getAdvancementManager().getAdvancement();
+                final @Nullable Pair<@NotNull String, @NotNull Integer> seed = this.plugin.getSeedManager().getSeed();
 
                 if (advancement == null || seed == null)
                     throw new IllegalStateException("Unable to get data from the database!");
 
-                this.plugin.startGame(huntedPlayer, hunterPlayers, advancement.getValue0(), Instant.ofEpochMilli(System.currentTimeMillis() + advancement.getValue1() * 60_000), seed.getValue0(), seed.getValue1());
+                this.plugin.startGame(huntedPlayer, hunterPlayers, advancement.getValue0(), Instant.now().plus(advancement.getValue1()), seed.getValue0(), seed.getValue1());
             } catch (BadGameStateException | IllegalStateException exception) {
                 exception.printStackTrace();
                 this.plugin.getServer().sendMessage(Component.text("An error was encountered while starting the game: ").color(TextColor.color(11141120)).append(Component.text(exception.getClass().getName())));

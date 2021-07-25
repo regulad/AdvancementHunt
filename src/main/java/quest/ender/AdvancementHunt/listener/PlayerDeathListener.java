@@ -8,7 +8,7 @@ import quest.ender.AdvancementHunt.database.stats.PlayerStats;
 import quest.ender.AdvancementHunt.database.stats.StatsColumn;
 import quest.ender.AdvancementHunt.exceptions.GameNotStartedException;
 import quest.ender.AdvancementHunt.game.GameEndReason;
-import quest.ender.AdvancementHunt.game.states.PlayingState;
+import quest.ender.AdvancementHunt.game.state.PlayingState;
 
 public class PlayerDeathListener implements Listener {
 

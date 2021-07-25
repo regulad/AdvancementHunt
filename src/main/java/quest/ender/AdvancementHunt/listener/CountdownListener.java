@@ -18,8 +18,8 @@ import quest.ender.AdvancementHunt.AdvancementHunt;
 import quest.ender.AdvancementHunt.events.PostGameStateChangeEvent;
 import quest.ender.AdvancementHunt.events.PreGameStateChangeEvent;
 import quest.ender.AdvancementHunt.exceptions.GameAlreadyStartedException;
-import quest.ender.AdvancementHunt.game.states.IdleState;
-import quest.ender.AdvancementHunt.game.states.PlayingState;
+import quest.ender.AdvancementHunt.game.state.IdleState;
+import quest.ender.AdvancementHunt.game.state.PlayingState;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -36,7 +36,7 @@ public class CountdownListener extends Object implements Listener {
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
-        if (this.plugin.getCurrentGameState() instanceof PlayingState playingState && !playingState.canMove())
+        if (this.plugin.getCurrentGameState() instanceof PlayingState playingState && !((playingState.fleeingPlayer.equals(event.getPlayer()) && playingState.huntedCanMove()) || playingState.canMove()))
             event.setCancelled(true);
     }
 

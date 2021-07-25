@@ -3,7 +3,7 @@ package quest.ender.AdvancementHunt.messages.persistent;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import quest.ender.AdvancementHunt.AdvancementHunt;
-import quest.ender.AdvancementHunt.game.states.PlayingState;
+import quest.ender.AdvancementHunt.game.state.PlayingState;
 import quest.ender.AdvancementHunt.messages.Message;
 
 public class PersistentMessageRunnable extends BukkitRunnable {

@@ -3,13 +3,15 @@ package quest.ender.AdvancementHunt.listener;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import quest.ender.AdvancementHunt.AdvancementHunt;
 import quest.ender.AdvancementHunt.database.stats.PlayerStats;
 import quest.ender.AdvancementHunt.database.stats.StatsColumn;
 import quest.ender.AdvancementHunt.events.PostGameStateChangeEvent;
 import quest.ender.AdvancementHunt.events.PreGameStateChangeEvent;
-import quest.ender.AdvancementHunt.game.states.IdleState;
-import quest.ender.AdvancementHunt.game.states.PlayingState;
+import quest.ender.AdvancementHunt.game.state.IdleState;
+import quest.ender.AdvancementHunt.game.state.PlayingState;
 import quest.ender.AdvancementHunt.messages.Message;
 
 public class GameStateChangeListener implements Listener {
@@ -91,5 +93,18 @@ public class GameStateChangeListener implements Listener {
                 }
             }
         }
+    }
+
+    @EventHandler
+    public void fixGameModes(final @NotNull PostGameStateChangeEvent postGameStateChangeEvent) {
+        @Nullable PlayingState possiblePlayingState = null;
+        if (postGameStateChangeEvent.getOldGameState() instanceof PlayingState knownPlayingState)
+            possiblePlayingState = knownPlayingState;
+        else if (postGameStateChangeEvent.getNewGameState() instanceof PlayingState knownPlayingState)
+            possiblePlayingState = knownPlayingState;
+
+        if (possiblePlayingState != null)
+            for (final @NotNull Player player : this.plugin.getServer().getOnlinePlayers())
+                player.setGameMode(possiblePlayingState.worldUtil.getMVWorldManager().getMVWorld(player.getWorld()).getGameMode()); // Janky as hell. Just to fix a small issue.
     }
 }

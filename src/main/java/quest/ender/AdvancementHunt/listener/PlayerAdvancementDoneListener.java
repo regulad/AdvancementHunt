@@ -7,7 +7,7 @@ import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import quest.ender.AdvancementHunt.AdvancementHunt;
 import quest.ender.AdvancementHunt.exceptions.GameNotStartedException;
 import quest.ender.AdvancementHunt.game.GameEndReason;
-import quest.ender.AdvancementHunt.game.states.PlayingState;
+import quest.ender.AdvancementHunt.game.state.PlayingState;
 
 public class PlayerAdvancementDoneListener implements Listener {
 

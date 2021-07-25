@@ -19,17 +19,12 @@ public class SeedManager {
         this.plugin = plugin;
     }
 
-    public @Nullable Pair<@NotNull String, Integer> getSeed() {
+    public @Nullable Pair<@NotNull String, @NotNull Integer> getSeed() {
         try {
-            @Nullable PreparedStatement preparedStatement = null; // Even though this switch is exhaustive, Intellij insists it isn't.
-            switch (this.plugin.getConnectionType()) {
-                case MYSQL:
-                    preparedStatement = this.plugin.getConnection().prepareStatement("SELECT * FROM " + this.plugin.getConfig().getString("db.prefix") + "worlds ORDER BY RAND() LIMIT 1;");
-                    break;
-                case SQLITE:
-                    preparedStatement = this.plugin.getConnection().prepareStatement("SELECT * FROM " + this.plugin.getConfig().getString("db.prefix") + "worlds ORDER BY RANDOM() LIMIT 1;");
-                    break;
-            }
+            final @Nullable PreparedStatement preparedStatement = switch (this.plugin.getConnectionType()) {
+                case MYSQL -> this.plugin.getConnection().prepareStatement("SELECT * FROM " + this.plugin.getConfig().getString("db.prefix") + "worlds ORDER BY RAND() LIMIT 1;");
+                case SQLITE -> this.plugin.getConnection().prepareStatement("SELECT * FROM " + this.plugin.getConfig().getString("db.prefix") + "worlds ORDER BY RANDOM() LIMIT 1;");
+            };
 
             final @NotNull ResultSet resultSet = preparedStatement.executeQuery();
 

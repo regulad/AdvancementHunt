@@ -1,4 +1,4 @@
-package quest.ender.AdvancementHunt.commands.executors;
+package quest.ender.AdvancementHunt.commands;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

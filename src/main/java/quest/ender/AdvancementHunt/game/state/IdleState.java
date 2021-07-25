@@ -1,7 +1,8 @@
-package quest.ender.AdvancementHunt.game.states;
+package quest.ender.AdvancementHunt.game.state;
 
-import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import quest.ender.AdvancementHunt.AdvancementHunt;
 import quest.ender.AdvancementHunt.game.GameEndReason;
 import quest.ender.AdvancementHunt.util.PlayerUtil;
@@ -17,10 +18,12 @@ public class IdleState implements GameState {
 
     @Override
     public void start() {
-        Location startingLocation = this.plugin.getServer().getWorlds().get(0).getSpawnLocation();
+        final @NotNull World primaryWorld = this.plugin.getServer().getWorlds().get(0);
+
         for (Player player : this.plugin.getServer().getOnlinePlayers()) {
             PlayerUtil.resetAllAdvancementProgresses(player);
-            player.teleport(startingLocation);
+            player.spigot().respawn();
+            player.teleport(primaryWorld.getSpawnLocation());
         }
     }
 

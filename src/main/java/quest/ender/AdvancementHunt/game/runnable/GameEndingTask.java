@@ -1,4 +1,4 @@
-package quest.ender.AdvancementHunt.game.tasks;
+package quest.ender.AdvancementHunt.game.runnable;
 
 import org.bukkit.scheduler.BukkitRunnable;
 import quest.ender.AdvancementHunt.AdvancementHunt;

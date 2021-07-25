@@ -10,7 +10,8 @@ At the beginning of the game, the Hunted will recieve the name of an advancement
 
 They must first figure out what the advancement is and then obtain it.
 
-Also, at the beginning of the game, the Hunters are tasked with killing the Hunted before they obtain the advancement. The Hunters may not know what the advancement is.
+Also, at the beginning of the game, the Hunters are tasked with killing the Hunted before they obtain the advancement.
+The Hunters may not know what the advancement is.
 
 All games have a time limit, and if it is reached, the game will stalemate.
 
@@ -21,7 +22,7 @@ Game stats are logged and can be accessed via PlaceholderAPI placeholders.
 1. The following plugins:
     * Multiverse-Core
     * Multiverse-NetherPortals
-    * Multiverse-Inventories  
+    * Multiverse-Inventories
     * PlaceholderAPI
 2. Java 8
 3. Spigot 1.13+
@@ -36,7 +37,8 @@ AdvancementHunt is ready to go out of the box.
 
 * `/gamestart [Hunted player] [Advancement] <Time (Minutes)> [World seed] <Worldborder>`: Allows you to start the game.
 * `/gameend`: Allows you to end the game.
-* `/registeradvancement <Advancement> <Time (Minutes)>`: Allows you to add an advancement and time limit to the database.
+* `/registeradvancement <Advancement> <Time (Minutes)>`: Allows you to add an advancement and time limit to the
+  database.
 * `/registerseed <World seed> <Worldborder>`: Allows you to add a seed and worldborder size to the database.
 
 ## Placeholders
@@ -71,11 +73,15 @@ Will produce:
 
 ### Maven
 
+Please note that this plugin uses NMS via reflection. This is against my will, and may not be required
+after https://github.com/PaperMC/Paper/pull/6175 is merged.
+
 Insert the following snippets into your POM.xml.
 
 For the repository:
 
 ```xml
+
 <repositories>
     ...
     <repository>
@@ -89,6 +95,7 @@ For the repository:
 For the dependency:
 
 ```xml
+
 <dependencies>
     ...
     <dependency>
@@ -109,7 +116,7 @@ Replace `{version}` with the current version. You can see the current version be
 You can get the instance of the AdvancementHunt plugin like any other plugin.
 
 ```java
-final AdvancementHunt plugin = (AdvancementHunt) Bukkit.getServer().getPluginManager().getPlugin("AdvancementHunt");
+final AdvancementHunt plugin=(AdvancementHunt)Bukkit.getServer().getPluginManager().getPlugin("AdvancementHunt");
 ```
 
 If you want to change the game state, see the `startGame()` or `endGame()` methods of `AdvancementHunt`.

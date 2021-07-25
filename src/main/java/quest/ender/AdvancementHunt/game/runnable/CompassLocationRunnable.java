@@ -1,9 +1,9 @@
-package quest.ender.AdvancementHunt.game.tasks;
+package quest.ender.AdvancementHunt.game.runnable;
 
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import quest.ender.AdvancementHunt.AdvancementHunt;
-import quest.ender.AdvancementHunt.game.states.PlayingState;
+import quest.ender.AdvancementHunt.game.state.PlayingState;
 
 public class CompassLocationRunnable extends BukkitRunnable {
     private final AdvancementHunt plugin;

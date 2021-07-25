@@ -1,4 +1,4 @@
-package quest.ender.AdvancementHunt.game.states;
+package quest.ender.AdvancementHunt.game.state;
 
 public interface GameState {
     void start();

@@ -8,10 +8,8 @@ import com.onarandombox.multiverseinventories.MultiverseInventories;
 import com.onarandombox.multiverseinventories.WorldGroup;
 import com.onarandombox.multiverseinventories.profile.WorldGroupManager;
 import com.onarandombox.multiverseinventories.share.Sharables;
-import org.bukkit.PortalType;
-import org.bukkit.Server;
-import org.bukkit.World;
-import org.bukkit.WorldType;
+import org.bukkit.*;
+import org.jetbrains.annotations.NotNull;
 
 public class WorldUtil {
     private final Server server;
@@ -20,27 +18,27 @@ public class WorldUtil {
         this.server = server;
     }
 
-    private MultiverseCore getMultiverseCore() {
+    public MultiverseCore getMultiverseCore() {
         return (MultiverseCore) this.server.getPluginManager().getPlugin("Multiverse-Core");
     }
 
-    private MultiverseInventories getMultiverseInventories() {
+    public MultiverseInventories getMultiverseInventories() {
         return (MultiverseInventories) this.server.getPluginManager().getPlugin("Multiverse-Inventories");
     }
 
-    private MultiverseNetherPortals getMultiverseNetherPortals() {
+    public MultiverseNetherPortals getMultiverseNetherPortals() {
         return (MultiverseNetherPortals) this.server.getPluginManager().getPlugin("Multiverse-NetherPortals");
     }
 
-    private MVWorldManager getMVWorldManager() {
+    public MVWorldManager getMVWorldManager() {
         return this.getMultiverseCore().getMVWorldManager();
     }
 
-    private WorldGroupManager getWorldGroupManager() {
+    public WorldGroupManager getWorldGroupManager() {
         return this.getMultiverseInventories().getGroupManager();
     }
 
-    public MultiverseWorld[] createWorlds(String worldName, String worldSeed) {
+    public MultiverseWorld[] createWorlds(final @NotNull String worldName, final @NotNull String worldSeed) {
         this.getMVWorldManager().addWorld(worldName, World.Environment.NORMAL, worldSeed, WorldType.NORMAL, true, null);
         this.getMVWorldManager().addWorld(worldName + "_nether", World.Environment.NETHER, worldSeed, WorldType.NORMAL, true, null);
         this.getMVWorldManager().addWorld(worldName + "_the_end", World.Environment.THE_END, worldSeed, WorldType.NORMAL, true, null);
@@ -61,17 +59,28 @@ public class WorldUtil {
 
         this.getWorldGroupManager().updateGroup(newGroup);
 
-        return new MultiverseWorld[]{this.getMVWorldManager().getMVWorld(worldName), this.getMVWorldManager().getMVWorld(worldName + "_nether"), this.getMVWorldManager().getMVWorld(worldName + "_the_end")};
+        final @NotNull MultiverseWorld[] worlds = new MultiverseWorld[]{this.getMVWorldManager().getMVWorld(worldName), this.getMVWorldManager().getMVWorld(worldName + "_nether"), this.getMVWorldManager().getMVWorld(worldName + "_the_end")};
+
+        for (MultiverseWorld world : worlds) {
+            world.setGameMode(GameMode.SURVIVAL); // Being weird.
+            world.setKeepSpawnInMemory(false);
+        }
+
+        return worlds;
     }
 
-    public void deleteWorlds(String worldName) {
-        this.getWorldGroupManager().removeGroup(this.getWorldGroupManager().getGroup(worldName));
+    public void deleteWorlds(final @NotNull String worldName) {
+        this.getMVWorldManager().removePlayersFromWorld(worldName);
+        this.getMVWorldManager().removePlayersFromWorld(worldName + "_nether");
+        this.getMVWorldManager().removePlayersFromWorld(worldName + "_the_end");
 
         this.getMultiverseNetherPortals().removeWorldLink(worldName, worldName + "_nether", PortalType.NETHER);
         this.getMultiverseNetherPortals().removeWorldLink(worldName + "_nether", worldName, PortalType.NETHER);
 
         this.getMultiverseNetherPortals().removeWorldLink(worldName, worldName + "_the_end", PortalType.ENDER);
         this.getMultiverseNetherPortals().removeWorldLink(worldName + "_the_end", worldName, PortalType.ENDER);
+
+        this.getWorldGroupManager().removeGroup(this.getWorldGroupManager().getGroup(worldName));
 
         this.getMVWorldManager().deleteWorld(worldName, true, true);
         this.getMVWorldManager().deleteWorld(worldName + "_nether", true, true);

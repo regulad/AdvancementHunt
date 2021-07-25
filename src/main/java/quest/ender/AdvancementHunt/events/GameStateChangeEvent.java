@@ -1,7 +1,7 @@
 package quest.ender.AdvancementHunt.events;
 
 import org.bukkit.event.Event;
-import quest.ender.AdvancementHunt.game.states.GameState;
+import quest.ender.AdvancementHunt.game.state.GameState;
 
 public abstract class GameStateChangeEvent extends Event {
     private final GameState oldGameState;
