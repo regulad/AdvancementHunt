@@ -24,7 +24,7 @@ import quest.ender.AdvancementHunt.game.state.PlayingState;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-public class CountdownListener extends Object implements Listener {
+public class CountdownListener implements Listener {
     private final @NotNull AdvancementHunt plugin;
 
     private boolean countingDown = false;

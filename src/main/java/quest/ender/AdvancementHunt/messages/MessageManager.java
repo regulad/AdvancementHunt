@@ -34,11 +34,11 @@ public class MessageManager {
         for (@NotNull Map<?, ?> messageEndpoint : messageEndpoints) {
             final @NotNull String sendType = (String) messageEndpoint.get("send_type");
             final @NotNull String messageToSend = (String) messageEndpoint.get("message");
-            final @NotNull Component messageComponent = LegacyComponentSerializer.legacyAmpersand().deserialize(PlaceholderAPI.setPlaceholders(recipient, messageToSend));
+            final @NotNull Component messageComponent = LegacyComponentSerializer.legacySection().deserialize(PlaceholderAPI.setPlaceholders(recipient, LegacyComponentSerializer.legacySection().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(messageToSend))));
             switch (sendType) {
                 case "title" -> {
                     final @NotNull String submessageToSend = messageEndpoint.get("submessage") != null ? (String) messageEndpoint.get("submessage") : "";
-                    final @NotNull Component submessageComponent = LegacyComponentSerializer.legacyAmpersand().deserialize(PlaceholderAPI.setPlaceholders(recipient, submessageToSend));
+                    final @NotNull Component submessageComponent = LegacyComponentSerializer.legacySection().deserialize(PlaceholderAPI.setPlaceholders(recipient, LegacyComponentSerializer.legacySection().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(submessageToSend))));
                     final @NotNull Title titleToSend = Title.title(messageComponent, submessageComponent);
                     recipient.showTitle(titleToSend);
                 }

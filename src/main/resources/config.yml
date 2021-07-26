@@ -24,7 +24,7 @@ game:
   compass: true # Whether or not a compass will be granted to hunters that will point to the hunted.
 matchmaker: # For the MatchmakerBukkit bridge. Requires the plugin to be installed.
   after_game: lobby # The game to be set to after a game is over.
-  rampdown: 15 # How long to wait after the game is over to send people to the game.
+  rampdown: 7 # How long to wait after the game is over to send people to the game.
 
 # ----------------------------------------------------------------------------
 # AdvancementHunt Messages

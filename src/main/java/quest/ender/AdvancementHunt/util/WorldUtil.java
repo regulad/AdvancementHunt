@@ -62,8 +62,9 @@ public class WorldUtil {
         final @NotNull MultiverseWorld[] worlds = new MultiverseWorld[]{this.getMVWorldManager().getMVWorld(worldName), this.getMVWorldManager().getMVWorld(worldName + "_nether"), this.getMVWorldManager().getMVWorld(worldName + "_the_end")};
 
         for (MultiverseWorld world : worlds) {
-            world.setGameMode(GameMode.SURVIVAL); // Being weird.
-            world.setKeepSpawnInMemory(false);
+            world.setGameMode(GameMode.SURVIVAL); // Weird in the case that the main world has a different GameMode from survival.
+            world.setDifficulty(Difficulty.HARD); // Same as the above case.
+            // If for some reason someone installs this plugin on a regular survival server, this won't completely break it.
         }
 
         return worlds;

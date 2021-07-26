@@ -2,6 +2,7 @@ package quest.ender.AdvancementHunt.placeholders;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.ChatColor;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +13,6 @@ import quest.ender.AdvancementHunt.game.state.PlayingState;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -120,15 +120,25 @@ public class AdvancementHuntPlaceholderExpansion extends PlaceholderExpansion {
             case "time":
                 if (this.plugin.getCurrentGameState() instanceof PlayingState currentGameState) {
                     final @NotNull Duration duration = Duration.between(currentGameState.endTime, Instant.now());
-                    long seconds = duration.get(ChronoUnit.SECONDS);
+                    long seconds = duration.getSeconds();
 
                     long minutes = seconds / 60;
-                    seconds = seconds % 60;
+                    seconds -= minutes * 60;
 
                     long hours = minutes / 60;
-                    minutes = minutes % 60;
+                    minutes -= hours * 60;
 
-                    return (hours != 0 ? (hours < 10 ? "0" + hours : String.valueOf(hours)) + ":" : "") + (minutes != 0 || hours != 0 ? (minutes < 10 ? "0" + minutes : String.valueOf(minutes)) + ":" : "") + (seconds < 10 ? "0" + seconds : String.valueOf(seconds));
+                    seconds = Math.abs(seconds); // ???
+                    minutes = Math.abs(minutes); // ???
+                    hours = Math.abs(hours); // ???
+
+                    return (minutes == 0 && hours == 0 && seconds > 0 ? ChatColor.RED : "")
+                            + (
+                            hours != 0 ? (hours < 10 ? "0" + hours : String.valueOf(hours)) + ":" : "")
+                            + (minutes != 0 || hours != 0 ? (minutes < 10 ? "0" + minutes : String.valueOf(minutes)) + ":" : "")
+                            + (seconds < 10 ? "0" + seconds : String.valueOf(seconds)
+                    )
+                            + (minutes == 0 && hours == 0 && seconds > 0 ? ChatColor.RESET : ""); // I kinda hate this case, but it's alright since it's the definition of internal code.
                 } else
                     return "";
             default:
