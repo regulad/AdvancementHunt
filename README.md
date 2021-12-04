@@ -85,8 +85,8 @@ For the repository:
 <repositories>
     ...
     <repository>
-        <id>regulad-releases</id>
-        <url>https://nexus.regulad.xyz/repository/maven-releases/</url>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
     </repository>
     ...
 </repositories>
@@ -116,7 +116,7 @@ Replace `{version}` with the current version. You can see the current version be
 You can get the instance of the AdvancementHunt plugin like any other plugin.
 
 ```java
-final AdvancementHunt plugin=(AdvancementHunt)Bukkit.getServer().getPluginManager().getPlugin("AdvancementHunt");
+final AdvancementHunt plugin = (AdvancementHunt) Bukkit.getServer().getPluginManager().getPlugin("AdvancementHunt");
 ```
 
 If you want to change the game state, see the `startGame()` or `endGame()` methods of `AdvancementHunt`.
