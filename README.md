@@ -85,8 +85,9 @@ For the repository:
 <repositories>
     ...
     <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
+        <id>github</id>
+        <name>GitHub Packages</name>
+        <url>https://maven.pkg.github.com/EnderQuestMC/AdvancementHunt</url>
     </repository>
     ...
 </repositories>
@@ -100,7 +101,7 @@ For the dependency:
     ...
     <dependency>
         <groupId>quest.ender</groupId>
-        <artifactId>AdvancementHunt</artifactId>
+        <artifactId>advancementhunt</artifactId>
         <version>{version}</version>
     </dependency>
     ...
