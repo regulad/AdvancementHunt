@@ -13,7 +13,6 @@ softdepend:
   - Matchmaker
 api-version: 1.17
 libraries:
-  - org.jetbrains:annotations:21.0.1
   - org.javatuples:javatuples:1.2
 
 permissions:
