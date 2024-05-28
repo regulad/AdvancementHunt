@@ -8,6 +8,7 @@ import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import quest.ender.AdvancementHunt.AdvancementHunt;
 import quest.ender.AdvancementHunt.game.runnable.CompassLocationRunnable;
 import quest.ender.AdvancementHunt.game.runnable.GameEndingTask;
@@ -20,6 +21,9 @@ import quest.ender.AdvancementHunt.util.WorldUtil;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class PlayingState implements GameState {
     public final Player fleeingPlayer;
@@ -74,6 +78,7 @@ public class PlayingState implements GameState {
     public void start() {
         // Create worlds
         final MultiverseWorld[] worlds = this.worldUtil.createWorlds(this.worldName, this.worldSeed);
+        // apparently, the hanging here is caused by the selection of a world spawn, but idk how to change that
 
         for (MultiverseWorld multiverseWorld : worlds) {
             multiverseWorld.getCBWorld().getWorldBorder().setSize(this.worldSize);
@@ -86,11 +91,55 @@ public class PlayingState implements GameState {
         this.huntedRunnable.runTaskTimer(this.plugin, 20, 20);
         this.compassLocationRunnable.runTaskTimer(this.plugin, 20, 10);
 
-        for (Player player : this.plugin.getServer().getOnlinePlayers()) {
-            player.teleport(worlds[0].getSpawnLocation());
-            PlayerUtil.resetAllAdvancementProgresses(player);
-            player.setInvulnerable(true);
-        }
+        final @NotNull Set<CompletableFuture<Boolean>> teleportationFutures = this.plugin.getServer().getOnlinePlayers().stream().map(player ->
+                player.teleportAsync(worlds[0].getSpawnLocation()).thenApply(
+                        (result) -> {
+                            if (!result) {
+                                throw new RuntimeException("Teleportation was not successful, terminating chain.");
+                            } else {
+                                return true;
+                            }
+                        }
+                ).thenCompose( // this will not run exceptionally
+                        // doing this async allows us to wait for the world to load before we begin the game
+                        (result) -> CompletableFuture.supplyAsync(() -> {
+                            // we can only run these once the player has arrived in the new world
+                            PlayerUtil.resetAllAdvancementProgresses(player);
+                            player.setInvulnerable(true);
+                            return result;
+                        }, this.plugin.getServer().getScheduler().getMainThreadExecutor(this.plugin))
+                        // we need to nest this future so that this can be executed on the main thread after the player is teleported
+                ).thenCompose( // this will also not run exceptionally
+                        (result) -> {
+                            // now we need to wait for the chunks to actually be sent to the client before we let people run amok
+                            final @NotNull CompletableFuture<Boolean> chunkSentFuture = new CompletableFuture<>();
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    if (player.isChunkSent(worlds[0].getSpawnLocation().getChunk())) {
+                                        // i could theoretically also check that all of the nearby chunks are loaded, but that's a bit overkill and this works good enough
+                                        chunkSentFuture.complete(true);
+                                        this.cancel();
+                                    }
+                                }
+                            }.runTaskTimer(this.plugin, 0, 1);
+                            return chunkSentFuture;
+                        }
+                ).thenCompose(
+                        (result) -> {
+                            // finally, we wait 3 seconds to ensure that the client has rendered the chunks that we sent them
+                            final @NotNull CompletableFuture<Boolean> chunkRenderedFuture = new CompletableFuture<>();
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    chunkRenderedFuture.complete(true);
+                                    this.cancel();
+                                }
+                            }.runTaskLater(this.plugin, 3L * 20L);
+                            return chunkRenderedFuture;
+                        }
+                )
+        ).collect(Collectors.toUnmodifiableSet());
 
         this.canMove = false;
         this.huntedCanMove = false;
@@ -102,10 +151,15 @@ public class PlayingState implements GameState {
                 if (!PlayingState.this.huntedCanMove)
                     PlayingState.this.huntedCanMove = true;
 
-                if (countdownSingleton[0] != 0) {
+                if (!teleportationFutures.stream().allMatch(CompletableFuture::isDone)) {
+                    // wait for the world to load here:
+                    PlayingState.this.plugin.getServer().showTitle(Title.title(Component.text("Loading world..."), Component.text("")));
+                } else if (countdownSingleton[0] != 0) {
+                    // Counting down
                     PlayingState.this.plugin.getServer().showTitle(Title.title(Component.text(String.valueOf(countdownSingleton[0])), Component.text("")));
                     countdownSingleton[0]--;
                 } else {
+                    // Start the game
                     for (Player player : PlayingState.this.plugin.getServer().getOnlinePlayers()) { // Shouldn't apply to all players, what if there are spectators.
                         player.setInvulnerable(false);
                         if (PlayingState.this.plugin.getConfig().getBoolean("game.compass") && PlayingState.this.huntingPlayers.contains(player))

@@ -24,8 +24,7 @@ Game stats are logged and can be accessed via PlaceholderAPI placeholders.
     * Multiverse-NetherPortals
     * Multiverse-Inventories
     * PlaceholderAPI
-2. Java 8
-3. Spigot 1.13+
+2. Paper 1.20.4+
 
 ## Setup
 

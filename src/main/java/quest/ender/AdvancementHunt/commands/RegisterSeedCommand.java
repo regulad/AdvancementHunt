@@ -1,5 +1,7 @@
 package quest.ender.AdvancementHunt.commands;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,6 +25,7 @@ public class RegisterSeedCommand implements CommandExecutor, TabCompleter {
         String worldSeed = args[0];
         int worldBorder = Integer.parseInt(args[1]);
         this.plugin.getSeedManager().putSeed(worldSeed, worldBorder);
+        sender.sendMessage(Component.text("Seed registered!").color(NamedTextColor.GREEN));
         return true; // All is good!
     }
 

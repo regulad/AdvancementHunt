@@ -11,7 +11,7 @@ depend:
   - Multiverse-NetherPortals
 softdepend:
   - Matchmaker
-api-version: 1.17
+api-version: 1.20
 libraries:
   - org.javatuples:javatuples:1.2
 

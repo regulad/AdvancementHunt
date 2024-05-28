@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>quest.ender</groupId>
     <artifactId>advancementhunt</artifactId>
-    <version>1.3.4-SNAPSHOT</version>
+    <version>1.4.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>AdvancementHunt</name>
     <properties>
@@ -115,7 +115,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.17.1-R0.1-SNAPSHOT</version>
+            <version>1.20.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -164,7 +164,9 @@
             <groupId>quest.ender</groupId>
             <artifactId>matchmaker</artifactId>
             <version>1.3.2</version>
-            <scope>provided</scope>
+<!--            <scope>provided</scope>-->
+            <scope>system</scope>
+            <systemPath>${project.basedir}\lib\Matchmaker-1.3.2.jar</systemPath>
         </dependency>
     </dependencies>
 </project>

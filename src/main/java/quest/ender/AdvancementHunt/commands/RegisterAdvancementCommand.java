@@ -1,5 +1,7 @@
 package quest.ender.AdvancementHunt.commands;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.command.Command;
@@ -34,6 +36,9 @@ public class RegisterAdvancementCommand implements CommandExecutor, TabCompleter
         if (possibleAdvancement == null) return false; // Bad advancement!
 
         this.plugin.getAdvancementManager().putAdvancement(possibleAdvancement, advancementTime);
+
+        // send a confirmation message
+        sender.sendMessage(Component.text("Advancement registered!").color(NamedTextColor.GREEN));
 
         return true; // All is good!
     }

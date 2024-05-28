@@ -51,7 +51,7 @@ public final class AdvancementHunt extends JavaPlugin implements Listener {
     private @Nullable ConnectionType connectionType = null;
     private @Nullable GameState currentGameState = new IdleState(this, GameEndReason.NONE);
 
-    private final @NotNull HashMap<@NotNull Player, @NotNull PlayerStats> playerStatsHashMap = new HashMap<>();
+    private final @NotNull HashMap<@NotNull Player, @NotNull PlayerStats> playerStatsCache = new HashMap<>();
     // Stupid, but placeholder access has forced my hand. Possible memory leak, but it won't be a big enough deal to care about.
 
     @Override
@@ -167,7 +167,7 @@ public final class AdvancementHunt extends JavaPlugin implements Listener {
 
     @EventHandler
     public void resetPlayerStats(PlayerQuitEvent playerQuitEvent) {
-        this.playerStatsHashMap.remove(playerQuitEvent.getPlayer());
+        this.playerStatsCache.remove(playerQuitEvent.getPlayer());
     }
 
     @EventHandler
@@ -176,18 +176,18 @@ public final class AdvancementHunt extends JavaPlugin implements Listener {
         final @Nullable Player killer = dead.getKiller();
 
         if (killer != null) {
-            this.playerStatsHashMap.remove(dead);
-            this.playerStatsHashMap.remove(killer);
+            this.playerStatsCache.remove(dead);
+            this.playerStatsCache.remove(killer);
         }
     }
 
     @EventHandler
     public void resetPlayerStats(PreGameStateChangeEvent preGameStateChangeEvent) {
-        this.playerStatsHashMap.clear();
+        this.playerStatsCache.clear();
     }
 
     public @NotNull PlayerStats getPlayerStats(Player player) {
-        return this.playerStatsHashMap.computeIfAbsent(player, k -> new PlayerStats(k, this));
+        return this.playerStatsCache.computeIfAbsent(player, k -> new PlayerStats(k, this));
     }
 
     @Deprecated
@@ -211,8 +211,7 @@ public final class AdvancementHunt extends JavaPlugin implements Listener {
         this.startGame(new PlayingState(this, fleeingPlayer, huntingPlayers, goalAdvancement, endTime, worldSeed, worldSize));
     }
 
-    @Deprecated
-    public void endGame(IdleState newIdleState) throws GameNotStartedException {
+    private void endGame(IdleState newIdleState) throws GameNotStartedException {
         if (this.currentGameState instanceof PlayingState currentPlayingState) {
             final @NotNull PreGameStateChangeEvent preGameStateChangeEvent = new PreGameStateChangeEvent(currentPlayingState, newIdleState);
             this.getServer().getPluginManager().callEvent(preGameStateChangeEvent);

@@ -39,7 +39,8 @@ public class AdvancementManager {
             final @NotNull Duration duration = Duration.of(resultSet.getInt("minutes"), ChronoUnit.MINUTES);
             return new Pair<>(advancement, duration);
         } catch (SQLException sqlException) {
-            sqlException.printStackTrace();
+            if (!sqlException.getMessage().equals("Illegal operation on empty result set.") && !sqlException.getMessage().equals("ResultSet closed"))
+                sqlException.printStackTrace();
             return null;
         }
     }
@@ -48,10 +49,11 @@ public class AdvancementManager {
         try {
             PreparedStatement preparedStatement = this.plugin.getConnection().prepareStatement("INSERT INTO " + this.plugin.getConfig().getString("db.prefix") + "advancements VALUES(?,?);");
             preparedStatement.setString(1, advancement.getKey().toString());
-            preparedStatement.setInt(2, (int) duration.get(ChronoUnit.MINUTES));
+            preparedStatement.setInt(2, (int) duration.toMinutes());
             preparedStatement.execute();
         } catch (SQLException sqlException) {
-            sqlException.printStackTrace();
+            if (!sqlException.getMessage().equals("Illegal operation on empty result set.") && !sqlException.getMessage().equals("ResultSet closed"))
+                sqlException.printStackTrace();
         }
     }
 }

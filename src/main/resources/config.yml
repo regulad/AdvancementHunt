@@ -7,7 +7,7 @@ db:
   type: sqlite # Can be either sqlite or mysql.
   prefix: ah_
   # SQLite only!
-  filename: database.sqlite # Must be a relative path.
+  filename: ah.sqlite # Must be a relative path.
   # MySQL only!
   host: localhost
   port: 3306

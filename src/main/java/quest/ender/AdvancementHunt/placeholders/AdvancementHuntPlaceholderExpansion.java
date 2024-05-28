@@ -1,9 +1,12 @@
 package quest.ender.AdvancementHunt.placeholders;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.translation.GlobalTranslator;
 import org.bukkit.ChatColor;
-import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,11 +16,7 @@ import quest.ender.AdvancementHunt.game.state.PlayingState;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class AdvancementHuntPlaceholderExpansion extends PlaceholderExpansion {
     private final @NotNull AdvancementHunt plugin;
@@ -38,7 +37,7 @@ public class AdvancementHuntPlaceholderExpansion extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getVersion() {
-        return "${project.version}";
+        return this.plugin.getDescription().getVersion();
     }
 
     @Override
@@ -86,21 +85,11 @@ public class AdvancementHuntPlaceholderExpansion extends PlaceholderExpansion {
                     return "";
             case "advancement":
                 if (this.plugin.getCurrentGameState() instanceof PlayingState currentGameState) {
-                    final @NotNull Advancement advancement = currentGameState.goalAdvancement;
-
-                    try { // NMS: Fix!
-                        final @NotNull Class<? extends Advancement> craftAdvancementClass = advancement.getClass();
-                        final @NotNull Class<?> advancementDisplayClass = craftAdvancementClass.getMethod("getDisplay").getReturnType(); // org.bukkit.advancement.AdvancementDisplay
-                        final @Nullable Object advancementDisplay = craftAdvancementClass.getMethod("getDisplay").invoke(advancement); // An instance of AdvancementDisplay
-                        return (String) Objects.requireNonNull(advancementDisplayClass.getMethod("getTitle").invoke(advancementDisplay));
-                    } catch (Exception exception) {
-                        exception.printStackTrace();
-
-                        final @NotNull String rawAdvancementName = advancement.getKey().getKey();
-                        return Arrays.stream(rawAdvancementName.substring(rawAdvancementName.lastIndexOf("/") + 1).toLowerCase().split("_"))
-                                .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
-                                .collect(Collectors.joining(" "));
-                    }
+                    // this is definitely the best way to do this
+                    final @NotNull TranslatableComponent advancementTitle = (TranslatableComponent) Objects.requireNonNull(currentGameState.goalAdvancement.getDisplay()).title();
+                    final @NotNull Component renderedComponent = GlobalTranslator.render(advancementTitle, Locale.US); // don't use the player locale if available, server only has Locale.US
+                    final @NotNull String advancementTitleString = PlainTextComponentSerializer.plainText().serialize(renderedComponent);
+                    return advancementTitleString;
                 } else
                     return "";
             case "hunted":

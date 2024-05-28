@@ -77,7 +77,7 @@ public class PlayerStats { // This isn't the best thing ever, but it's considera
 
             return this.cachedResultSet.getInt(statsColumn.getColumnTitle());
         } catch (SQLException sqlException) {
-            if (!sqlException.getMessage().equals("Illegal operation on empty result set."))
+            if (!sqlException.getMessage().equals("Illegal operation on empty result set.") && !sqlException.getMessage().equals("ResultSet closed"))
                 sqlException.printStackTrace();
             return 0;
         }
