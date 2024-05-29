@@ -1,5 +1,7 @@
 package quest.ender.AdvancementHunt.listener;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,6 +15,7 @@ import quest.ender.AdvancementHunt.events.PreGameStateChangeEvent;
 import quest.ender.AdvancementHunt.game.state.IdleState;
 import quest.ender.AdvancementHunt.game.state.PlayingState;
 import quest.ender.AdvancementHunt.messages.Message;
+import quest.ender.AdvancementHunt.util.stream.RandomComparator;
 
 public class GameStateChangeListener implements Listener {
     private final AdvancementHunt plugin;
@@ -32,7 +35,7 @@ public class GameStateChangeListener implements Listener {
     }
 
     @EventHandler
-    public void onGameEnd(PreGameStateChangeEvent event) { // Pre because of PAPI placeholders
+    public void giveStatsOnGameEnd(PreGameStateChangeEvent event) { // Pre because of PAPI placeholders
         if (event.getNewGameState() instanceof IdleState newIdleState && event.getOldGameState() instanceof PlayingState oldPlayingState) { // Game end
             switch (newIdleState.getGameEndReason()) {
                 case HUNTED_WIN -> {
@@ -92,6 +95,29 @@ public class GameStateChangeListener implements Listener {
                     }
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void startNewGameOnGameFinish(final @NotNull PostGameStateChangeEvent event) {
+        if (event.getNewGameState() instanceof IdleState newIdleState && event.getOldGameState() instanceof PlayingState oldPlayingState) { // Game end
+            this.plugin.getServer().sendMessage(Component.text("A new game will start in 30 seconds if enough people are online.", NamedTextColor.AQUA));
+            this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () -> {
+                // check to see that we have more than 2 people online, if not return
+                if (this.plugin.getServer().getOnlinePlayers().size() <= 1) {
+                    this.plugin.getServer().sendMessage(Component.text("Not enough people are online to begin a new game!", NamedTextColor.RED));
+                    return;
+                }
+                // choose a random player who is still online who isn't the old hunted player
+                final @NotNull Player newHuntedPlayer = this.plugin.getServer().getOnlinePlayers().stream().sorted(new RandomComparator<>()).filter(player -> !player.equals(oldPlayingState.fleeingPlayer)).findAny().get();
+                final boolean newGameStarted = this.plugin.startGameUnattended(newHuntedPlayer, false);
+
+                if (newGameStarted) {
+                    this.plugin.getServer().sendMessage(Component.text("A new game has started!", NamedTextColor.GREEN));
+                } else {
+                    this.plugin.getServer().sendMessage(Component.text("Not enough people are online to begin a new game!", NamedTextColor.RED));
+                }
+            }, 20 * 30);
         }
     }
 

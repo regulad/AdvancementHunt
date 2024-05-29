@@ -1,6 +1,10 @@
 package quest.ender.AdvancementHunt;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -9,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.javatuples.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import quest.ender.AdvancementHunt.commands.GameendCommand;
@@ -21,6 +26,7 @@ import quest.ender.AdvancementHunt.database.SeedManager;
 import quest.ender.AdvancementHunt.database.stats.PlayerStats;
 import quest.ender.AdvancementHunt.events.PostGameStateChangeEvent;
 import quest.ender.AdvancementHunt.events.PreGameStateChangeEvent;
+import quest.ender.AdvancementHunt.exceptions.BadGameStateException;
 import quest.ender.AdvancementHunt.exceptions.GameAlreadyStartedException;
 import quest.ender.AdvancementHunt.exceptions.GameNotStartedException;
 import quest.ender.AdvancementHunt.game.GameEndReason;
@@ -35,8 +41,10 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -52,6 +60,38 @@ public final class AdvancementHunt extends JavaPlugin implements Listener {
     private @Nullable GameState currentGameState = new IdleState(this, GameEndReason.NONE);
 
     private final @NotNull HashMap<@NotNull Player, @NotNull PlayerStats> playerStatsCache = new HashMap<>();
+
+    public boolean startGameUnattended(final @NotNull Player huntedPlayer, final boolean respectConfig) {
+        final int playersNeeded = Bukkit.getMaxPlayers() - this.getServer().getOnlinePlayers().size();
+        final boolean shouldStart = !respectConfig || this.getConfig().getBoolean("game.start_on_join");
+        if (shouldStart && this.getCurrentGameState() instanceof IdleState && playersNeeded < 0) {
+            Collection<? extends Player> onlinePlayers = this.getServer().getOnlinePlayers();
+            ArrayList<Player> hunterPlayers = new ArrayList<>();
+
+            for (Player player : onlinePlayers) {
+                if (!player.equals(huntedPlayer)) hunterPlayers.add(player);
+            }
+
+            try {
+                final @Nullable Pair<@Nullable Advancement, @NotNull Duration> advancement = this.getAdvancementManager().getAdvancement();
+                final @Nullable Pair<@NotNull String, @NotNull Integer> seed = this.getSeedManager().getSeed();
+
+                if (advancement == null || seed == null)
+                    throw new IllegalStateException("Unable to get data from the database!");
+
+                this.startGame(huntedPlayer, hunterPlayers, advancement.getValue0(), Instant.now().plus(advancement.getValue1()), seed.getValue0(), seed.getValue1());
+            } catch (BadGameStateException | IllegalStateException exception) {
+                exception.printStackTrace();
+                this.getServer().sendMessage(Component.text("An error was encountered while starting the game: ").color(TextColor.color(11141120)).append(Component.text(exception.getClass().getName())));
+            }
+
+            return true;
+        } else {
+            this.getServer().sendMessage(Component.text("AdvancementHunt: The game will start when " + playersNeeded + " more player(s) join.").color(NamedTextColor.WHITE));
+
+            return false;
+        }
+    }
     // Stupid, but placeholder access has forced my hand. Possible memory leak, but it won't be a big enough deal to care about.
 
     @Override

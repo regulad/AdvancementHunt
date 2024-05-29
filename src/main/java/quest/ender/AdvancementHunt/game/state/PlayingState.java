@@ -3,6 +3,7 @@ package quest.ender.AdvancementHunt.game.state;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.Player;
@@ -113,11 +114,12 @@ public class PlayingState implements GameState {
                         (result) -> {
                             // now we need to wait for the chunks to actually be sent to the client before we let people run amok
                             final @NotNull CompletableFuture<Boolean> chunkSentFuture = new CompletableFuture<>();
+                            final Set<Chunk> chunks = getNearbyChunks(player, worlds[0].getSpawnLocation().getChunk());
+
                             new BukkitRunnable() {
                                 @Override
                                 public void run() {
-                                    if (player.isChunkSent(worlds[0].getSpawnLocation().getChunk())) {
-                                        // i could theoretically also check that all of the nearby chunks are loaded, but that's a bit overkill and this works good enough
+                                    if (player.getSentChunks().containsAll(chunks)) {
                                         chunkSentFuture.complete(true);
                                         this.cancel();
                                     }
@@ -148,17 +150,20 @@ public class PlayingState implements GameState {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (!PlayingState.this.huntedCanMove)
-                    PlayingState.this.huntedCanMove = true;
-
                 if (!teleportationFutures.stream().allMatch(CompletableFuture::isDone)) {
                     // wait for the world to load here:
                     PlayingState.this.plugin.getServer().showTitle(Title.title(Component.text("Loading world..."), Component.text("")));
                 } else if (countdownSingleton[0] != 0) {
+                    if (!PlayingState.this.huntedCanMove)
+                        PlayingState.this.huntedCanMove = true;
+
                     // Counting down
                     PlayingState.this.plugin.getServer().showTitle(Title.title(Component.text(String.valueOf(countdownSingleton[0])), Component.text("")));
                     countdownSingleton[0]--;
                 } else {
+                    if (!PlayingState.this.huntedCanMove)
+                        PlayingState.this.huntedCanMove = true;
+
                     // Start the game
                     for (Player player : PlayingState.this.plugin.getServer().getOnlinePlayers()) { // Shouldn't apply to all players, what if there are spectators.
                         player.setInvulnerable(false);
@@ -178,6 +183,19 @@ public class PlayingState implements GameState {
                 }
             }
         }.runTaskTimer(this.plugin, this.plugin.getConfig().getLong("game.before") * 20L, 20L);
+    }
+
+    private static Set<Chunk> getNearbyChunks(Player player, Chunk chunk) {
+        final int chunkRadius = Math.max(player.getViewDistance() / 2, 4);
+        final int chunkX = chunk.getX();
+        final int chunkZ = chunk.getZ();
+        return Set.copyOf(new ArrayList<>() {{
+            for (int x = chunkX - chunkRadius; x <= chunkX + chunkRadius; x++) {
+                for (int z = chunkZ - chunkRadius; z <= chunkZ + chunkRadius; z++) {
+                    add(chunk.getWorld().getChunkAt(x, z));
+                }
+            }
+        }});
     }
 
     @Override

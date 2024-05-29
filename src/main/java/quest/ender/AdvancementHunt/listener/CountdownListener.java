@@ -3,6 +3,7 @@ package quest.ender.AdvancementHunt.listener;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Server;
@@ -73,7 +74,7 @@ public class CountdownListener implements Listener {
                     } else {
                         final @NotNull Server serverAudience = CountdownListener.this.plugin.getServer();
                         serverAudience.playSound(Sound.sound(Key.key("block.note_block.snare"), Sound.Source.BLOCK, 1f, 0.5f));
-                        serverAudience.showTitle(Title.title(Component.text(String.valueOf(countdown[0])), Component.text("")));
+                        serverAudience.showTitle(Title.title(Component.text(String.valueOf(countdown[0])), Component.text("⚠ Lag incoming! ⚠", NamedTextColor.RED)));
 
                         countdown[0] -= 1;
                     }

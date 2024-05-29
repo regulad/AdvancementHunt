@@ -22,6 +22,7 @@ public class IdleState implements GameState {
 
         for (Player player : this.plugin.getServer().getOnlinePlayers()) {
             PlayerUtil.resetAllAdvancementProgresses(player);
+            player.getInventory().clear();
             player.spigot().respawn();
             player.teleport(primaryWorld.getSpawnLocation());
         }
